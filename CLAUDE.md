@@ -1,86 +1,72 @@
-# Dify Workflows リポジトリ
+# Dify Workflows リポジトリ（セルフホスト版）
 
-このリポジトリは Dify ワークフローの DSL を管理しています。
+このリポジトリは AWS EC2 上の Dify セルフホスト環境のワークフロー DSL を管理しています。
+
+## 環境情報
+
+- **Dify URL**: http://13.230.151.56
+- **Dify Version**: 1.10.0
+- **LLM Provider**: AWS Bedrock (Amazon Nova)
+- **インフラ**: AWS CDK (EC2 Spot + Elastic IP)
 
 ## ディレクトリ構造
 
 ```
-production/           # 本番環境のワークフロー
+.claude/
+└── skills/
+    └── dify-dsl.md        # DSL生成スキル（詳細なテンプレート）
+.github/
+└── workflows/
+    └── export-daily.yml   # 毎日3AM JSTに自動バックアップ
+workflows/                 # ワークフロー DSL
 ├── {app-name}/
-│   ├── workflow.yml  # DSL ファイル
-│   └── metadata.json # メタデータ
-templates/            # Dify 公式テンプレート（参照用）
+│   ├── workflow.yml       # DSL ファイル
+│   └── metadata.json      # メタデータ
+scripts/
+├── export-workflows.py    # ワークフローエクスポート
+├── get-access-token.py    # Difyログイン・トークン取得
+└── requirements.txt
+infra/                     # AWS CDK インフラ定義
+├── lib/
+│   └── dify-stack.ts      # EC2 Spot + Bedrock
+└── scripts/
+    └── user-data.sh       # EC2初期化スクリプト
 ```
 
-## Dify DSL 生成ルール
+## 現在のワークフロー
 
-DSL を生成・編集する際は、以下のルールを厳守すること。
+| 名前 | モード | 説明 |
+|------|--------|------|
+| 日本語→英語翻訳 | workflow | シンプルな翻訳 |
+| コード変換機 | completion | プログラミング言語変換 |
+| 顧客レビュー分析 | workflow | 質問分類器でルーティング |
+| 質問分類器 + 知識 + チャットボット | advanced-chat | RAG対応チャット |
+| ウェブの検索と要約 | workflow | HTTP Request連携 |
+| 人気科学文章の著者 | advanced-chat | ネストされた並列処理 |
+| DeepResearch | advanced-chat | 深掘りリサーチ |
 
-### 1. ノード ID
-- **必ず数字の文字列**を使用する（例: `'1734567890001'`）
-- ❌ `'start'`, `'llm-node'` などの文字列 ID は不可
-- ✅ `'1734567890001'`, `'1734567890002'` など
+## DSL 生成
 
-### 2. Edge（接続）の必須フィールド
-```yaml
-edges:
-- data:
-    isInIteration: false  # 必須
-    isInLoop: false       # 必須
-    sourceType: start
-    targetType: llm
-  id: 1734567890001-source-1734567890002-target
-  source: '1734567890001'
-  sourceHandle: source
-  target: '1734567890002'
-  targetHandle: target
-  type: custom
-  zIndex: 0               # 必須
-```
+DSL生成の詳細ルールは `.claude/skills/dify-dsl.md` を参照。
 
-### 3. ノードの必須フィールド
-```yaml
-nodes:
-- data:
-    # ... ノード固有のデータ
-  height: 88
-  id: '1734567890001'
-  position:
-    x: 80
-    y: 300
-  positionAbsolute:       # 必須（position と同じ値）
-    x: 80
-    y: 300
-  selected: false
-  sourcePosition: right
-  targetPosition: left
-  type: custom
-  width: 242
-```
+### クイックリファレンス
 
-### 4. LLM ノードの prompt_template
-```yaml
-prompt_template:
-- edition_type: basic     # 必須
-  id: a1b2c3d4-e5f6-7890-abcd-ef1234567890  # UUID 形式
-  role: system
-  text: "プロンプト内容"
-- id: b2c3d4e5-f6a7-8901-bcde-f23456789012
-  role: user
-  text: "{{#1734567890001.query#}}"
-```
+#### ノード ID
+- **必ず数字の文字列**（タイムスタンプ形式）を使用
+- ✅ `'1735638000001'`
+- ❌ `'start'`, `'llm-node'`
 
-### 4.1 LLM モデル設定（AWS Bedrock / Amazon Nova）
+#### モデル設定（AWS Bedrock）
 ```yaml
 model:
   completion_params:
     temperature: 0.7
   mode: chat
-  name: amazon nova
+  name: us.amazon.nova-lite-v1:0
   provider: langgenius/bedrock/bedrock
 ```
 
-### 4.2 依存関係（AWS Bedrock）
+#### 依存関係
 ```yaml
 dependencies:
 - current_identifier: null
@@ -90,17 +76,41 @@ dependencies:
     version: null
 ```
 
-### 5. LLM ノードの追加必須フィールド
-```yaml
-structured_output_enabled: false  # 必須
-vision:
-  enabled: false                  # 必須
+#### 変数参照
+```
+{{#ノードID.変数名#}}
+```
+例: `{{#1735638000001.input#}}`
+
+## 運用コマンド
+
+### ワークフローのバックアップ（手動）
+```bash
+# ログインしてトークン取得
+python scripts/get-access-token.py \
+  --dify-url "http://13.230.151.56" \
+  --email "YOUR_EMAIL" \
+  --password "YOUR_PASSWORD" \
+  --json > /tmp/dify_login.json
+
+# エクスポート
+COOKIES=$(jq -r '.cookies' /tmp/dify_login.json)
+python scripts/export-workflows.py \
+  --dify-url "http://13.230.151.56" \
+  --api-key "$COOKIES" \
+  --output-dir workflows/
 ```
 
-### 6. 変数参照の形式
-- `{{#ノードID.変数名#}}` の形式を使用
-- 例: `{{#1734567890001.query#}}`
+### インフラ操作
+```bash
+cd infra
 
-### 7. 参照すべきテンプレート
-新しい DSL を生成する前に、`templates/` ディレクトリ内の公式テンプレートを参照すること。
-特に使用するノードタイプに近いテンプレートを確認する。
+# デプロイ
+npx cdk deploy --require-approval never
+
+# EC2接続（SSM）
+aws ssm start-session --target <instance-id>
+
+# Difyコンテナ確認
+cd /opt/dify/docker && docker compose ps
+```
