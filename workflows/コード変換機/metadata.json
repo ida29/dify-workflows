@@ -1,0 +1,10 @@
+{
+  "id": "36f13b6a-e4ff-4c7d-9987-2d230b6e35ab",
+  "name": "コード変換機",
+  "mode": "completion",
+  "description": "Providing translation capabilities in multiple programming languages, translating the user's input code into the programming language they need. Please translate the following code snippet to {{Target_code}}: When the information entered by the user is not a code snippet, prompt: Please enter a valid code snippet.{{default_input}}",
+  "icon": "👨‍💻",
+  "icon_background": "#D1E9FF",
+  "created_at": 1767168769,
+  "updated_at": 1767168768
+}

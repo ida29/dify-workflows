@@ -1,15 +1,15 @@
-# Dify Workflows リポジトリ (個人用 / VibeCoding)
+# Dify Workflows リポジトリ
 
-このリポジトリは Dify SaaS (cloud.dify.ai) のワークフロー DSL を管理しています。
+このリポジトリは Dify ワークフローの DSL を管理しています。
 
 ## ディレクトリ構造
 
 ```
-workflows/            # ワークフロー DSL
+production/           # 本番環境のワークフロー
 ├── {app-name}/
 │   ├── workflow.yml  # DSL ファイル
 │   └── metadata.json # メタデータ
-scripts/              # 自動化スクリプト
+templates/            # Dify 公式テンプレート（参照用）
 ```
 
 ## Dify DSL 生成ルール
@@ -18,8 +18,8 @@ DSL を生成・編集する際は、以下のルールを厳守すること。
 
 ### 1. ノード ID
 - **必ず数字の文字列**を使用する（例: `'1734567890001'`）
-- NG: `'start'`, `'llm-node'` などの文字列 ID は不可
-- OK: `'1734567890001'`, `'1734567890002'` など
+- ❌ `'start'`, `'llm-node'` などの文字列 ID は不可
+- ✅ `'1734567890001'`, `'1734567890002'` など
 
 ### 2. Edge（接続）の必須フィールド
 ```yaml
@@ -70,14 +70,24 @@ prompt_template:
   text: "{{#1734567890001.query#}}"
 ```
 
-### 4.1 LLM モデル設定（Dify SaaS / OpenAI）
+### 4.1 LLM モデル設定（AWS Bedrock / Amazon Nova）
 ```yaml
 model:
   completion_params:
     temperature: 0.7
   mode: chat
-  name: gpt-4o-mini
-  provider: openai
+  name: amazon nova
+  provider: langgenius/bedrock/bedrock
+```
+
+### 4.2 依存関係（AWS Bedrock）
+```yaml
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/bedrock:0.0.49@8bca05c0cfdbc60cc824b18410dea65ad6e1303099bcaa768a9de20971e3eaf4
+    version: null
 ```
 
 ### 5. LLM ノードの追加必須フィールド
@@ -91,6 +101,6 @@ vision:
 - `{{#ノードID.変数名#}}` の形式を使用
 - 例: `{{#1734567890001.query#}}`
 
-### 7. 既存ワークフローの参照
-新しい DSL を生成する前に、`workflows/` ディレクトリ内の既存ワークフローを参照すること。
-特に使用するノードタイプに近いワークフローを確認する。
+### 7. 参照すべきテンプレート
+新しい DSL を生成する前に、`templates/` ディレクトリ内の公式テンプレートを参照すること。
+特に使用するノードタイプに近いテンプレートを確認する。

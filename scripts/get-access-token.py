@@ -3,13 +3,12 @@
 Dify Access Token取得スクリプト (セルフホスト版)
 
 Difyにログインしてアクセストークンを取得します。
-Dify 1.11+ ではパスワードをBase64エンコードして送信する必要があります。
+Dify 1.10.x ではパスワードをそのまま送信します。
 """
 import sys
 import argparse
 import requests
 import json
-import base64
 
 
 def get_access_token(dify_url: str, email: str, password: str) -> dict:
@@ -21,13 +20,10 @@ def get_access_token(dify_url: str, email: str, password: str) -> dict:
     headers = {
         'Content-Type': 'application/json'
     }
-    # Dify 1.11+ ではパスワードをBase64エンコード
-    encoded_password = base64.b64encode(password.encode()).decode()
+    # Dify 1.10.x ではパスワードをそのまま送信
     payload = {
         'email': email,
-        'password': encoded_password,
-        'language': 'ja-JP',
-        'remember_me': True
+        'password': password
     }
 
     response = requests.post(url, headers=headers, json=payload, timeout=30)
