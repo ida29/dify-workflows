@@ -1,0 +1,66 @@
+name: Export Workflows Daily
+
+on:
+  schedule:
+    - cron: '0 18 * * *'  # 毎日 3AM JST (UTC+9)
+  workflow_dispatch:  # 手動実行も可能
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Login and get access token
+        id: login
+        run: |
+          RESPONSE=$(python scripts/get-access-token.py \
+            --dify-url "${{ secrets.DIFY_URL }}" \
+            --email "${{ secrets.DIFY_EMAIL }}" \
+            --password "${{ secrets.DIFY_PASSWORD }}" \
+            --json)
+
+          TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
+
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Export workflows
+        run: |
+          python scripts/export-workflows.py \
+            --dify-url "${{ secrets.DIFY_URL }}" \
+            --api-key "${{ steps.login.outputs.token }}" \
+            --output-dir workflows/
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git add workflows/
+          if git diff --staged --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected"
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: auto-export workflows ($(date +%Y-%m-%d))"
+          git push origin main
