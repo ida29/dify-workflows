@@ -47,40 +47,14 @@ infra/                     # AWS CDK インフラ定義
 
 ## DSL 生成
 
-DSL生成の詳細ルールは `.claude/skills/dify-dsl.md` を参照。
+**DSL生成時は `.claude/skills/dify-dsl.md` を必ず参照すること。**
 
-### クイックリファレンス
-
-#### ノード ID
-- **必ず数字の文字列**（タイムスタンプ形式）を使用
-- ✅ `'1735638000001'`
-- ❌ `'start'`, `'llm-node'`
-
-#### モデル設定（AWS Bedrock）
-```yaml
-model:
-  completion_params:
-    temperature: 0.7
-  mode: chat
-  name: us.amazon.nova-lite-v1:0
-  provider: langgenius/bedrock/bedrock
-```
-
-#### 依存関係
-```yaml
-dependencies:
-- current_identifier: null
-  type: marketplace
-  value:
-    marketplace_plugin_unique_identifier: langgenius/bedrock:0.0.49@8bca05c0cfdbc60cc824b18410dea65ad6e1303099bcaa768a9de20971e3eaf4
-    version: null
-```
-
-#### 変数参照
-```
-{{#ノードID.変数名#}}
-```
-例: `{{#1735638000001.input#}}`
+スキルには以下が含まれている:
+- ノードタイプ別テンプレート（Start, LLM, End, Answer, Question Classifier等）
+- Edge（接続）テンプレート
+- 変数参照形式
+- AWS Bedrock設定
+- 生成時の注意事項
 
 ## 運用コマンド
 
