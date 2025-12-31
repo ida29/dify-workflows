@@ -29,3 +29,4 @@ secrets/
 *.tmp
 *.bak
 .cache/
+.playwright-mcp/
