@@ -1,0 +1,10 @@
+{
+  "id": "d44e3d06-0ab4-4fd9-908e-c7ae36d7dc6e",
+  "name": "TS YouTube コンテンツ生成 v4",
+  "mode": "workflow",
+  "description": "TypeScript関連のHacker Newsトピックから、YouTube動画用のコンテンツを自動生成。IF/ELSE分岐、Variable Aggregator、Open Loop構造、SEO最適化対応。",
+  "icon": "🎬",
+  "icon_background": "#E0F2FE",
+  "created_at": 1767174541,
+  "updated_at": 1767174541
+}
