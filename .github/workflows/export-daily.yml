@@ -33,16 +33,17 @@ jobs:
             --password "${{ secrets.DIFY_PASSWORD }}" \
             --json)
 
-          TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
+          # Cookie形式で取得 (Dify 1.11+ はCookie認証が必要)
+          COOKIES=$(echo "$RESPONSE" | jq -r '.cookies')
 
-          echo "::add-mask::$TOKEN"
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+          echo "::add-mask::$COOKIES"
+          echo "cookies=$COOKIES" >> $GITHUB_OUTPUT
 
       - name: Export workflows
         run: |
           python scripts/export-workflows.py \
             --dify-url "${{ secrets.DIFY_URL }}" \
-            --api-key "${{ steps.login.outputs.token }}" \
+            --api-key "${{ steps.login.outputs.cookies }}" \
             --output-dir workflows/
 
       - name: Check for changes

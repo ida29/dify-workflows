@@ -40,18 +40,18 @@ export class DifyStack extends cdk.Stack {
       'SSH access'
     );
 
-    // HTTP アクセス (指定IPのみ)
+    // HTTP アクセス (GitHub Actions等からのアクセスのため全開放)
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4(props.allowedIp),
+      ec2.Peer.anyIpv4(),
       ec2.Port.tcp(80),
-      'HTTP access'
+      'HTTP access from anywhere'
     );
 
-    // HTTPS アクセス (指定IPのみ)
+    // HTTPS アクセス (GitHub Actions等からのアクセスのため全開放)
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4(props.allowedIp),
+      ec2.Peer.anyIpv4(),
       ec2.Port.tcp(443),
-      'HTTPS access'
+      'HTTPS access from anywhere'
     );
 
     // IAM ロール (Bedrock アクセス用)
