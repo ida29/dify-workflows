@@ -63,10 +63,11 @@ export class DifyStack extends cdk.Stack {
       ],
     });
 
-    // インスタンスプロファイル
-    const instanceProfile = new iam.CfnInstanceProfile(this, 'DifyInstanceProfile', {
-      roles: [role.roleName],
-    });
+    // SSM Parameter Store 読み取り権限（DuckDNSトークン用）
+    role.addToPolicy(new iam.PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/dify/*`],
+    }));
 
     // 最新の Amazon Linux 2023 AMI
     const ami = ec2.MachineImage.latestAmazonLinux2023({
@@ -78,54 +79,31 @@ export class DifyStack extends cdk.Stack {
       path.join(__dirname, '../scripts/user-data.sh'),
       'utf8'
     );
-    const userDataBase64 = cdk.Fn.base64(userDataScript);
-
-    // 起動テンプレート (スポットインスタンス用)
-    const launchTemplate = new ec2.CfnLaunchTemplate(this, 'DifyLaunchTemplate', {
-      launchTemplateData: {
-        imageId: ami.getImage(this).imageId,
-        instanceType: 't3.medium',
-        iamInstanceProfile: {
-          arn: instanceProfile.attrArn,
-        },
-        securityGroupIds: [securityGroup.securityGroupId],
-        userData: userDataBase64,
-        blockDeviceMappings: [
-          {
-            deviceName: '/dev/xvda',
-            ebs: {
-              volumeSize: 30,
-              volumeType: 'gp3',
-              encrypted: true,
-              deleteOnTermination: false, // インスタンス削除時もデータ保持
-            },
-          },
-        ],
-        instanceMarketOptions: {
-          marketType: 'spot',
-          spotOptions: {
-            spotInstanceType: 'persistent',
-            instanceInterruptionBehavior: 'stop',
-            maxPrice: '0.05', // 最大価格 $0.05/時
-          },
-        },
-        metadataOptions: {
-          httpTokens: 'required', // IMDSv2 必須
-          httpEndpoint: 'enabled',
-        },
-      },
-    });
+    const userData = ec2.UserData.custom(userDataScript);
 
     // サブネット取得
     const subnet = vpc.publicSubnets[0];
 
-    // スポットインスタンス (CfnInstance で作成)
-    const instance = new ec2.CfnInstance(this, 'DifyInstance', {
-      launchTemplate: {
-        launchTemplateId: launchTemplate.ref,
-        version: launchTemplate.attrLatestVersionNumber,
-      },
-      subnetId: subnet.subnetId,
+    // オンデマンドインスタンス（停止→起動でデータ永続化）
+    const instance = new ec2.Instance(this, 'DifyInstance', {
+      vpc,
+      vpcSubnets: { subnets: [subnet] },
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+      machineImage: ami,
+      securityGroup,
+      role,
+      userData,
+      blockDevices: [
+        {
+          deviceName: '/dev/xvda',
+          volume: ec2.BlockDeviceVolume.ebs(30, {
+            volumeType: ec2.EbsDeviceVolumeType.GP3,
+            encrypted: true,
+            deleteOnTermination: true,
+          }),
+        },
+      ],
+      requireImdsv2: true,
     });
 
     // Elastic IP (固定IP)
@@ -135,12 +113,12 @@ export class DifyStack extends cdk.Stack {
 
     new ec2.CfnEIPAssociation(this, 'DifyEipAssociation', {
       allocationId: eip.attrAllocationId,
-      instanceId: instance.ref,
+      instanceId: instance.instanceId,
     });
 
     // Outputs
     new cdk.CfnOutput(this, 'InstanceId', {
-      value: instance.ref,
+      value: instance.instanceId,
       description: 'EC2 Instance ID',
     });
 

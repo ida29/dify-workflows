@@ -45,5 +45,15 @@ sed -i "s|^SECRET_KEY=.*|SECRET_KEY=${SECRET_KEY}|" .env
 # Dify 起動
 docker-compose up -d
 
+# DuckDNS 更新（SSM Parameter Store からトークン取得）
+echo "=== Updating DuckDNS ==="
+DUCKDNS_TOKEN=$(aws ssm get-parameter --name "/dify/duckdns-token" --with-decryption --query 'Parameter.Value' --output text --region ap-northeast-1 2>/dev/null || echo "")
+if [ -n "$DUCKDNS_TOKEN" ]; then
+  PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+  curl -s "https://www.duckdns.org/update?domains=yida-dify&token=${DUCKDNS_TOKEN}&ip=${PUBLIC_IP}"
+  echo ""
+  echo "DuckDNS updated: yida-dify.duckdns.org -> ${PUBLIC_IP}"
+fi
+
 echo "=== Dify setup completed ==="
-echo "Access Dify at http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)"
+echo "Access Dify at http://yida-dify.duckdns.org"

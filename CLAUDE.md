@@ -4,10 +4,10 @@
 
 ## 環境情報
 
-- **Dify URL**: http://13.230.151.56
+- **Dify URL**: http://yida-dify.duckdns.org
 - **Dify Version**: 1.10.0
 - **LLM Provider**: AWS Bedrock (Amazon Nova)
-- **インフラ**: AWS CDK (EC2 Spot + Elastic IP)
+- **インフラ**: AWS CDK (EC2 On-Demand + Elastic IP + DuckDNS)
 
 ## ディレクトリ構造
 
