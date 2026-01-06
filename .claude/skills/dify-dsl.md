@@ -493,6 +493,130 @@ dependencies:
 6. **LLMノードのprompt_templateにはedition_type: basicを必ず含める**こと
 7. **既存のテンプレートワークフローを参照**して、使用するノードタイプの構造を確認すること
 
+## ⚠️ 分岐ワークフローの重要ルール（必読）
+
+### Difyの変数参照の重大な制約
+
+**🚨 重要**: Difyでは、**実行されなかったノードの変数は参照できない**。これはDifyの仕様であり、回避不可能。
+
+### NGパターン1: 分岐後に複数パスの変数を参照
+
+```
+Start
+  ↓
+IF/ELSE
+  ├─ 有り → LLM-A(#021) ───┐
+  └─ 無し → LLM-B(#005) ───┤
+                           ↓
+                      LLM-C（エラー！）
+                      {{#021.text#}}  ← 無しパスでは存在しない
+                      {{#005.text#}}  ← 有りパスでは存在しない
+```
+
+**結果**: どちらのパスでも必ずエラー。「実行されなかったノードの変数は空になる」という動作ではなく、**Variable not found エラー**になる。
+
+### NGパターン2: 複数入力エッジの共有ノード
+
+```
+Start
+  ↓
+IF/ELSE
+  ├─ 有り → LLM-A(#021) ───┐
+  │                        ├──→ 共有LLM-C（エラー！）
+  └─ 無し → LLM-B(#005) ───┘     {{#021.text#}} or {{#005.text#}}
+```
+
+**結果**: 共有ノードが複数パスの変数を参照しようとすると、実行されなかったパスの変数でエラー。
+
+### ✅ 正しい解決策: Variable Aggregator で合流
+
+**Variable Aggregator**（変数集約）を使って、分岐した複数パスを**1つの出力変数に統合**してから後続処理へ渡す。
+
+```
+Start
+  ↓
+IF/ELSE
+  ├─ 有り → LLM-A(#021) ───────────┐
+  └─ 無し → API → IF/ELSE         │
+                   ├─ 有り → LLM-B(#005) ─┤
+                   └─ 無し → LLM-C(#020) ─┤
+                                          ↓
+                          Variable Aggregator(#030)
+                          （3つのパスを1つに統合）
+                                          ↓
+                                    後続LLM
+                                    {{#030.output#}}  ← これなら確実に存在！
+                                          ↓
+                                        ...続く
+```
+
+### Variable Aggregator ノードテンプレート
+
+```yaml
+# Variable Aggregator（分岐合流用）
+- data:
+    advanced_settings:
+      group_enabled: false
+    desc: '複数パスの出力を1つに統合'
+    output_type: string
+    selected: false
+    title: パス合流
+    type: variable-aggregator
+    variables:
+    - - '1735660001021'  # パス1のノード
+      - text
+    - - '1735660001005'  # パス2のノード
+      - text
+    - - '1735660001020'  # パス3のノード
+      - text
+  height: 150
+  id: '1735660001030'
+  position:
+    x: 1880
+    y: 400
+  positionAbsolute:
+    x: 1880
+    y: 400
+  selected: false
+  sourcePosition: right
+  targetPosition: left
+  type: custom
+  width: 244
+```
+
+### Variable Aggregator への Edge テンプレート
+
+```yaml
+# 各パスから Variable Aggregator への接続
+- data:
+    isInIteration: false
+    sourceType: llm
+    targetType: variable-aggregator
+  id: '1735660001021-1735660001030'
+  source: '1735660001021'
+  sourceHandle: source
+  target: '1735660001030'
+  targetHandle: '1735660001021'  # sourceのノードIDを指定
+  type: custom
+  zIndex: 0
+```
+
+### 分岐設計のルール（改訂版）
+
+1. **分岐後は必ず Variable Aggregator で合流**: IF/ELSE で分岐したパスは、後続処理の前に Variable Aggregator で統合する
+2. **後続ノードは Aggregator の出力のみ参照**: `{{#aggregatorNodeId.output#}}` を使用し、個別パスのノードは参照しない
+3. **並列処理は分岐合流後に配置**: 分岐がある場合、並列処理は Variable Aggregator の後に配置する
+4. **変数参照の検証**: 各ノードで参照する変数が、**そのノードに至る全てのパスで確実に存在する**ことを確認
+
+### Variable Assigner vs Variable Aggregator
+
+| 用途 | ノードタイプ | 説明 |
+|------|-------------|------|
+| **分岐パスの合流** | `variable-aggregator` | IF/ELSE等の分岐を1つに統合 |
+| **並列処理の集約** | `variable-assigner` | 同時実行ノードの結果を収集 |
+
+**注意**: 名前が似ているが用途が異なる。分岐合流には必ず `variable-aggregator` を使用。
+
 ## 参照すべきテンプレート
 
 `workflows/`ディレクトリ内の既存ワークフローを参照:
@@ -501,3 +625,4 @@ dependencies:
 - `質問分類器-+-知識-+-チャットボット/` - advanced-chatモード + Knowledge Retrieval
 - `ウェブの検索と要約のワークフローパターン/` - HTTP Request
 - `人気科学文章の著者-(ネストされた並列)/` - 並列処理の例
+- `ts-youtube-content-generator/` - **IF/ELSE分岐 + Variable Aggregator による合流**（分岐設計の参考に）
