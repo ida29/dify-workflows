@@ -1,10 +1,10 @@
 {
-  "id": "7f2f6a1f-243f-4299-bdbb-3392fad973d7",
+  "id": "373f1adc-6dc9-44bb-b2d6-d8ba0bb3e2ce",
   "name": "質問分類器 + 知識 + チャットボット",
   "mode": "advanced-chat",
   "description": "",
   "icon": "📖",
   "icon_background": "#FFEAD5",
-  "created_at": 1767168533,
-  "updated_at": 1767168533
+  "created_at": 1767741411,
+  "updated_at": 1767778642
 }

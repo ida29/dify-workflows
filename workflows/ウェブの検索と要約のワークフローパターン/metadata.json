@@ -1,10 +1,10 @@
 {
-  "id": "a31af449-1d8c-4cdc-8d2c-8b4b6548255d",
+  "id": "0bf27ab0-652b-4d16-bc1d-0ac46a1cadae",
   "name": "ウェブの検索と要約のワークフローパターン",
   "mode": "workflow",
   "description": "",
   "icon": "🔍",
   "icon_background": "#FFEAD5",
-  "created_at": 1767168643,
-  "updated_at": 1767168643
+  "created_at": 1767745399,
+  "updated_at": 1767757901
 }
