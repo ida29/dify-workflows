@@ -30,3 +30,4 @@ secrets/
 *.bak
 .cache/
 .playwright-mcp/
+.playwright-state.json
