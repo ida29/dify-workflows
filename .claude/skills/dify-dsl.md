@@ -275,6 +275,13 @@ workflow:
   width: 244
 ```
 
+**⚠️ Retrieval Setting の注意点**:
+- Knowledge Retrieval ノードの「Retrieval Setting」では **「Weighted Score」を使用すること**
+- 「Rerank Model」を選択すると、OpenAI プロバイダーを参照してエラーになる可能性がある
+- UI上で設定する場合:
+  - Retrieval Setting → Rerank Setting → **Weighted Score** を選択
+  - Semantic: 1.0, Keyword: 0, Top K: 4 （推奨値）
+
 ### HTTP Request ノード
 ```yaml
 - data:

@@ -97,6 +97,22 @@ tool_parameters:
 # 出力は .raw_content で参照
 ```
 
+### Knowledge Retrieval 設定
+
+**重要**: Knowledge Retrievalノードの「Retrieval Setting」では、「Rerank Model」ではなく「Weighted Score」を使用すること。
+
+```yaml
+# ⚠️ Rerank Model は OpenAI プロバイダーを参照してエラーになる可能性あり
+# ✅ Weighted Score を使用（推奨）
+retrieval_setting:
+  mode: weighted_score
+  semantic: 1.0
+  keyword: 0
+  top_k: 4
+```
+
+**理由**: Difyの Knowledge Retrieval ノードで「Rerank Model」を選択すると、内部的にOpenAIのrerankモデルを参照しようとし、OpenAIプラグインがインストールされていない環境では「Provider openai does not exist」エラーが発生する。
+
 ## 運用コマンド
 
 ### ワークフローのバックアップ（手動）
