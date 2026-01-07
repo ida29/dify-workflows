@@ -37,7 +37,7 @@ scripts/
 └── requirements.txt
 infra/                     # AWS CDK インフラ定義
 ├── lib/
-│   └── dify-stack.ts      # EC2 Spot + Bedrock
+│   └── dify-stack.ts      # EC2 On-Demand + Bedrock
 └── scripts/
     └── user-data.sh       # EC2初期化スクリプト
 ```
@@ -116,10 +116,13 @@ retrieval_setting:
 ## 運用コマンド
 
 ### ワークフローのバックアップ（手動）
+
+**注意**: Dify 1.10+ではログイン時にパスワードをBase64エンコードして送信する必要がある。`get-access-token.py`はこれを自動的に処理する。
+
 ```bash
 # ログインしてトークン取得
 python scripts/get-access-token.py \
-  --dify-url "http://13.230.151.56" \
+  --dify-url "http://yida-dify.duckdns.org" \
   --email "YOUR_EMAIL" \
   --password "YOUR_PASSWORD" \
   --json > /tmp/dify_login.json
@@ -127,9 +130,17 @@ python scripts/get-access-token.py \
 # エクスポート
 COOKIES=$(jq -r '.cookies' /tmp/dify_login.json)
 python scripts/export-workflows.py \
-  --dify-url "http://13.230.151.56" \
+  --dify-url "http://yida-dify.duckdns.org" \
   --api-key "$COOKIES" \
   --output-dir workflows/
+```
+
+### 自動バックアップ（GitHub Actions）
+
+毎日3AM JST（18:00 UTC）に自動実行。手動実行も可能:
+
+```bash
+gh workflow run export-daily.yml
 ```
 
 ### インフラ操作
