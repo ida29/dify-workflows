@@ -9,6 +9,15 @@
 - **LLM Provider**: AWS Bedrock (Amazon Nova)
 - **インフラ**: AWS CDK (EC2 On-Demand + Elastic IP + DuckDNS)
 
+## インストール済みプラグイン
+
+| プラグイン | 用途 |
+|-----------|------|
+| langgenius/bedrock | LLMプロバイダー（Amazon Nova） |
+| langgenius/tavily | Web検索・コンテンツ抽出 |
+
+**注意**: OpenAI、DeepSeek、Jina AIプラグインは削除済み。全てのワークフローはBedrock + Tavilyで動作する。
+
 ## ディレクトリ構造
 
 ```
@@ -41,7 +50,7 @@ infra/                     # AWS CDK インフラ定義
 | コード変換機 | completion | プログラミング言語変換 |
 | 顧客レビュー分析 | workflow | 質問分類器でルーティング |
 | 質問分類器 + 知識 + チャットボット | advanced-chat | RAG対応チャット |
-| ウェブの検索と要約 | workflow | HTTP Request連携 |
+| ウェブの検索と要約 | workflow | Tavily検索・抽出連携 |
 | 人気科学文章の著者 | advanced-chat | ネストされた並列処理 |
 | DeepResearch | advanced-chat | 深掘りリサーチ |
 
@@ -55,6 +64,38 @@ infra/                     # AWS CDK インフラ定義
 - 変数参照形式
 - AWS Bedrock設定
 - 生成時の注意事項
+
+### モデル命名規則
+
+DifyのDSLでは、モデル名にフレンドリーネームを使用する:
+
+```yaml
+# 正しい（フレンドリーネーム）
+model:
+  name: amazon nova
+  provider: langgenius/bedrock/bedrock
+
+# 間違い（Bedrock モデルID）
+model:
+  name: amazon.nova-pro-v1:0  # エラーになる
+```
+
+### Tavily ツール設定
+
+```yaml
+# Web検索
+provider_id: langgenius/tavily/tavily
+tool_name: tavily_search
+
+# コンテンツ抽出
+provider_id: langgenius/tavily/tavily
+tool_name: tavily_extract
+tool_parameters:
+  urls:
+    type: mixed
+    value: '{{#node_id.item#}}'
+# 出力は .raw_content で参照
+```
 
 ## 運用コマンド
 

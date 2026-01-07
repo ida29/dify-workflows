@@ -479,7 +479,92 @@ dependencies:
 - current_identifier: null
   type: marketplace
   value:
-    marketplace_plugin_unique_identifier: langgenius/bedrock:0.0.49@8bca05c0cfdbc60cc824b18410dea65ad6e1303099bcaa768a9de20971e3eaf4
+    marketplace_plugin_unique_identifier: langgenius/bedrock:0.0.57@b7fb0414c4e64004a36c3141cb8d9a249d949013bb21efbce34918e71cce5051
+    version: null
+```
+
+## Tavily ツールノード
+
+### Tavily Search（Web検索）
+```yaml
+- data:
+    desc: ''
+    provider_id: langgenius/tavily/tavily
+    provider_name: langgenius/tavily/tavily
+    provider_type: api
+    selected: false
+    title: TavilySearch
+    tool_configurations:
+      exclude_domains: null
+      include_answer: 0
+      include_domains: null
+      include_images: 0
+      include_raw_content: 0
+      max_results: 10
+      search_depth: basic
+    tool_label: TavilySearch
+    tool_name: tavily_search
+    tool_parameters:
+      query:
+        type: mixed
+        value: '{{#1734567890001.input#}}'
+    type: tool
+  height: 245
+  id: '1734567890070'
+  position:
+    x: 380
+    y: 300
+  positionAbsolute:
+    x: 380
+    y: 300
+  selected: false
+  sourcePosition: right
+  targetPosition: left
+  type: custom
+  width: 244
+```
+
+### Tavily Extract（コンテンツ抽出）
+```yaml
+- data:
+    desc: ''
+    provider_id: langgenius/tavily/tavily
+    provider_name: langgenius/tavily/tavily
+    provider_type: api
+    selected: false
+    title: Tavily Extract
+    tool_configurations: {}
+    tool_label: Tavily Extract
+    tool_name: tavily_extract
+    tool_parameters:
+      urls:
+        type: mixed
+        value: '{{#1716911333343.item#}}'
+    type: tool
+  height: 150
+  id: '1734567890080'
+  position:
+    x: 380
+    y: 300
+  positionAbsolute:
+    x: 380
+    y: 300
+  selected: false
+  sourcePosition: right
+  targetPosition: left
+  type: custom
+  width: 244
+```
+
+**注意**: Tavily Extractの出力は `.raw_content` で参照する:
+- `{{#1734567890080.raw_content#}}`
+
+### Tavily用 dependencies
+```yaml
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tavily:0.1.2@aa7a8744b2ccf3a7aec818da6c504997a6319b29040e541bfc73b4fbaa9e98d9
     version: null
 ```
 
@@ -623,6 +708,6 @@ IF/ELSE
 - `コード変換機/` - completionモードの例
 - `顧客レビュー分析/` - workflowモード + Question Classifier
 - `質問分類器-+-知識-+-チャットボット/` - advanced-chatモード + Knowledge Retrieval
-- `ウェブの検索と要約のワークフローパターン/` - HTTP Request
+- `ウェブの検索と要約のワークフローパターン/` - Tavily検索・抽出 + Iteration
 - `人気科学文章の著者-(ネストされた並列)/` - 並列処理の例
 - `ts-youtube-content-generator/` - **IF/ELSE分岐 + Variable Aggregator による合流**（分岐設計の参考に）
