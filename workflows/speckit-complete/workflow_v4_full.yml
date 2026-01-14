@@ -481,7 +481,7 @@ workflow:
           completion_params:
             temperature: 0.3
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -536,7 +536,7 @@ workflow:
           completion_params:
             temperature: 0.3
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -593,7 +593,7 @@ workflow:
           completion_params:
             temperature: 0.1
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         query_variable_selector:
         - '1735820000001'
@@ -635,7 +635,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -696,7 +696,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -787,7 +787,7 @@ workflow:
           completion_params:
             temperature: 0.3
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -870,7 +870,7 @@ workflow:
           completion_params:
             temperature: 0.5
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -929,7 +929,7 @@ workflow:
           completion_params:
             temperature: 0.5
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1024,7 +1024,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1090,7 +1090,7 @@ workflow:
           completion_params:
             temperature: 0.6
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1163,7 +1163,7 @@ workflow:
           completion_params:
             temperature: 0.5
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1234,7 +1234,7 @@ workflow:
           completion_params:
             temperature: 0.6
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1311,7 +1311,7 @@ workflow:
           completion_params:
             temperature: 0.3
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1423,7 +1423,7 @@ workflow:
           completion_params:
             temperature: 0.3
           mode: chat
-          name: 'amazon-nova'
+          name: amazon nova
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic

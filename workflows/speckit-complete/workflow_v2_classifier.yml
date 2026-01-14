@@ -1,0 +1,408 @@
+app:
+  description: 'GitHub spec-kitの全機能を統合実装したワークフロー v2'
+  icon: 🚀
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: SpecKit Complete v2
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/bedrock:0.0.57@b7fb0414c4e64004a36c3141cb8d9a249d949013bb21efbce34918e71cce5051
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+    opening_statement: 'SpecKit Complete へようこそ！コマンドを選択してください：
+
+      - constitution: プロジェクト原則定義
+      - specify: 要件仕様書作成
+      - clarify: 曖昧な要件の明確化
+      - plan: 技術実装計画
+      - tasks: タスク分解
+      - analyze: 要件分析'
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: start
+        targetType: question-classifier
+      id: '1735800000001-1735800000010'
+      source: '1735800000001'
+      sourceHandle: source
+      target: '1735800000010'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: question-classifier
+        targetType: llm
+      id: '1735800000010-1735800000101-1735800000021'
+      source: '1735800000010'
+      sourceHandle: '1735800000101'
+      target: '1735800000021'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: question-classifier
+        targetType: llm
+      id: '1735800000010-1735800000102-1735800000022'
+      source: '1735800000010'
+      sourceHandle: '1735800000102'
+      target: '1735800000022'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: question-classifier
+        targetType: llm
+      id: '1735800000010-1735800000103-1735800000023'
+      source: '1735800000010'
+      sourceHandle: '1735800000103'
+      target: '1735800000023'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: '1735800000021-1735800000030'
+      source: '1735800000021'
+      sourceHandle: source
+      target: '1735800000030'
+      targetHandle: '1735800000021'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: '1735800000022-1735800000030'
+      source: '1735800000022'
+      sourceHandle: source
+      target: '1735800000030'
+      targetHandle: '1735800000022'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: '1735800000023-1735800000030'
+      source: '1735800000023'
+      sourceHandle: source
+      target: '1735800000030'
+      targetHandle: '1735800000023'
+      type: custom
+    - data:
+        sourceType: variable-aggregator
+        targetType: answer
+      id: '1735800000030-1735800000003'
+      source: '1735800000030'
+      sourceHandle: source
+      target: '1735800000003'
+      targetHandle: target
+      type: custom
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: コマンド
+          max_length: 50
+          options:
+          - constitution
+          - specify
+          - clarify
+          - plan
+          - tasks
+          - analyze
+          required: true
+          type: select
+          variable: command
+        - label: 要件・プロンプト
+          max_length: 5000
+          options: []
+          required: true
+          type: paragraph
+          variable: prompt
+      height: 116
+      id: '1735800000001'
+      position:
+        x: 80
+        y: 300
+      positionAbsolute:
+        x: 80
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        classes:
+        - id: '1735800000101'
+          name: 'constitution_specify'
+        - id: '1735800000102'
+          name: 'clarify_analyze'
+        - id: '1735800000103'
+          name: 'plan_tasks'
+        desc: 'コマンドを分類'
+        instructions: 'constitution, specifyは"constitution_specify"、clarify, analyzeは"clarify_analyze"、plan, tasksは"plan_tasks"に分類'
+        model:
+          completion_params:
+            temperature: 0.3
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        query_variable_selector:
+        - '1735800000001'
+        - command
+        selected: false
+        title: Command Classifier
+        topics: []
+        type: question-classifier
+      height: 183
+      id: '1735800000010'
+      position:
+        x: 380
+        y: 300
+      positionAbsolute:
+        x: 380
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 'Constitution & Specify処理'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - edition_type: basic
+          id: 'a1b2c3d4-0001-0001-0001-000000000001'
+          role: system
+          text: 'あなたはspec-kit constitutionとspecifyコマンドの専門家です。
+
+            コマンド: {{#1735800000001.command#}}
+
+
+            constitutionの場合：プロジェクトの原則とガイドラインを定義
+            specifyの場合：詳細な要件仕様書を作成（[NEEDS CLARIFICATION: xxx]マーカーを適宜挿入）'
+        - id: 'b2c3d4e5-0001-0001-0001-000000000001'
+          role: user
+          text: '{{#1735800000001.prompt#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Constitution/Specify
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1735800000021'
+      position:
+        x: 680
+        y: 150
+      positionAbsolute:
+        x: 680
+        y: 150
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 'Clarify & Analyze処理'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - edition_type: basic
+          id: 'a1b2c3d4-0002-0002-0002-000000000002'
+          role: system
+          text: 'あなたはspec-kit clarifyとanalyzeコマンドの専門家です。
+
+            コマンド: {{#1735800000001.command#}}
+
+
+            clarifyの場合：曖昧な点を明確化する質問を1つずつ提示
+            analyzeの場合：要件の一貫性と網羅性を分析'
+        - id: 'b2c3d4e5-0002-0002-0002-000000000002'
+          role: user
+          text: '{{#1735800000001.prompt#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Clarify/Analyze
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1735800000022'
+      position:
+        x: 680
+        y: 300
+      positionAbsolute:
+        x: 680
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 'Plan & Tasks処理'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - edition_type: basic
+          id: 'a1b2c3d4-0003-0003-0003-000000000003'
+          role: system
+          text: 'あなたはspec-kit planとtasksコマンドの専門家です。
+
+            コマンド: {{#1735800000001.command#}}
+
+
+            planの場合：技術実装計画を作成
+            tasksの場合：実装タスクを優先順位付きで分解'
+        - id: 'b2c3d4e5-0003-0003-0003-000000000003'
+          role: user
+          text: '{{#1735800000001.prompt#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Plan/Tasks
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1735800000023'
+      position:
+        x: 680
+        y: 450
+      positionAbsolute:
+        x: 680
+        y: 450
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        advanced_settings:
+          group_enabled: false
+        desc: '複数パスの出力を1つに統合'
+        output_type: string
+        selected: false
+        title: Output Aggregator
+        type: variable-aggregator
+        variables:
+        - - '1735800000021'
+          - text
+        - - '1735800000022'
+          - text
+        - - '1735800000023'
+          - text
+      height: 150
+      id: '1735800000030'
+      position:
+        x: 980
+        y: 300
+      positionAbsolute:
+        x: 980
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1735800000030.output#}}'
+        desc: ''
+        selected: false
+        title: Answer
+        type: answer
+        variables:
+        - value_selector:
+          - '1735800000030'
+          - output
+          variable: output
+      height: 107
+      id: '1735800000003'
+      position:
+        x: 1280
+        y: 300
+      positionAbsolute:
+        x: 1280
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 1
+  rag_pipeline_variables: []
