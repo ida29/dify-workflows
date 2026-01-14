@@ -65,6 +65,57 @@ infra/                     # AWS CDK インフラ定義
 - AWS Bedrock設定
 - 生成時の注意事項
 
+### ⚠️ 重要: ノードIDの命名規則
+
+**エラー `e.slice is not a function` の原因と対策:**
+
+DifyのDSLインポートでは、ノードIDに厳格な命名規則があります：
+
+```yaml
+# ✅ 正しい: Startノードは数値ID、他は文字列ID
+nodes:
+  - id: '1768378069057'  # Startノード: 数値ID（タイムスタンプ）
+    data:
+      type: start
+  - id: 'llm'            # LLMノード: 文字列ID
+    data:
+      type: llm
+  - id: 'answer'         # Answerノード: 文字列ID
+    data:
+      type: answer
+
+# ❌ 間違い: すべて数値ID
+nodes:
+  - id: '1736800000001'  # エラーになる
+    data:
+      type: start
+  - id: '1736800000002'  # エラーになる（文字列IDであるべき）
+    data:
+      type: llm
+```
+
+**ルール:**
+1. **Startノード**: 数値ID（タイムスタンプ形式）を使用
+2. **その他すべてのノード**: 文字列ID（`llm`, `answer`, `if-else-1`など）を使用
+3. **Edge ID**: `{source_id}-{target_id}`形式（例: `1768378069057-llm`）
+
+### Variable Assignerノードの必須プロパティ
+
+Variable Assignerノードでは`write_mode`が必須：
+
+```yaml
+# ✅ 正しい
+variables:
+  - variable_id: cv_count
+    write_mode: 'over-write'  # 必須プロパティ
+    value: 1
+
+# ❌ 間違い: write_modeがない
+variables:
+  - variable_id: cv_count
+    value: 1  # エラーになる
+```
+
 ### モデル命名規則
 
 DifyのDSLでは、モデル名にフレンドリーネームを使用する:
