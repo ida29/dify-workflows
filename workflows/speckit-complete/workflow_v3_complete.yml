@@ -618,6 +618,9 @@ workflow:
           - text
         - - '1735810000023'
           - text
+        advanced_settings:
+          group_enabled: false
+          groups: []
       height: 150
       id: '1735810000030'
       position:

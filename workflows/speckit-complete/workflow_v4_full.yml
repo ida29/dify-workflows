@@ -1369,6 +1369,7 @@ workflow:
     - data:
         advanced_settings:
           group_enabled: false
+          groups: []
         desc: '全ブランチの結果を統合'
         output_type: string
         selected: false
