@@ -1,0 +1,10 @@
+{
+  "id": "3987432e-a234-4918-b79f-b707c49be570",
+  "name": "SpecKit Clarify - 要件明確化",
+  "mode": "advanced-chat",
+  "description": "SDDにおける曖昧な要件を検出し、1問ずつ対話形式で明確化を行うチャットフロー。spec-kitのclarifyコマンドを再現。",
+  "icon": "🔍",
+  "icon_background": "#E4FBCC",
+  "created_at": 1768377978,
+  "updated_at": 1768377978
+}
