@@ -31,3 +31,4 @@ secrets/
 .cache/
 .playwright-mcp/
 .playwright-state.json
+.env.local

@@ -4,12 +4,28 @@ Dify Access Token取得スクリプト (セルフホスト版)
 
 Difyにログインしてアクセストークンを取得します。
 Dify 1.10.x ではパスワードをBase64エンコードして送信します。
+
+.envファイルから認証情報を自動読み込み（--dify-url, --email, --password 省略可）
 """
 import sys
 import argparse
 import base64
 import requests
 import json
+from pathlib import Path
+
+
+def load_env():
+    """Load credentials from .env file if exists"""
+    env_path = Path(__file__).parent.parent / '.env'
+    env_vars = {}
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            if '=' in line and not line.startswith('#'):
+                key, val = line.split('=', 1)
+                val = val.strip().strip('"').strip("'")
+                env_vars[key.strip()] = val
+    return env_vars
 
 
 def encode_password(password: str) -> str:
@@ -65,23 +81,26 @@ def get_access_token(dify_url: str, email: str, password: str) -> dict:
 
 
 def main():
+    # Load .env first
+    env_vars = load_env()
+
     parser = argparse.ArgumentParser(
-        description='Get Dify access token (self-hosted)'
+        description='Get Dify access token (self-hosted). Reads from .env if args omitted.'
     )
     parser.add_argument(
         '--dify-url',
-        required=True,
-        help='Dify instance URL (e.g., http://13.230.151.56)'
+        default=env_vars.get('DIFY_URL'),
+        help='Dify instance URL (default: from .env DIFY_URL)'
     )
     parser.add_argument(
         '--email',
-        required=True,
-        help='Your Dify login email'
+        default=env_vars.get('DIFY_EMAIL'),
+        help='Your Dify login email (default: from .env DIFY_EMAIL)'
     )
     parser.add_argument(
         '--password',
-        required=True,
-        help='Your Dify login password'
+        default=env_vars.get('DIFY_PASSWORD'),
+        help='Your Dify login password (default: from .env DIFY_PASSWORD)'
     )
     parser.add_argument(
         '--json',
@@ -90,6 +109,16 @@ def main():
     )
 
     args = parser.parse_args()
+
+    # Validate required args
+    if not args.dify_url or not args.email or not args.password:
+        missing = []
+        if not args.dify_url: missing.append('--dify-url or DIFY_URL')
+        if not args.email: missing.append('--email or DIFY_EMAIL')
+        if not args.password: missing.append('--password or DIFY_PASSWORD')
+        print(f"Error: Missing required: {', '.join(missing)}", file=sys.stderr)
+        print("Create .env file or provide command line args.", file=sys.stderr)
+        sys.exit(1)
 
     try:
         if not args.json:

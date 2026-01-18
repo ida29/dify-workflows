@@ -1,0 +1,744 @@
+app:
+  description: SpecKit完全実装 - GitHub SDD全機能30ノード
+  icon: 🤖
+  icon_background: '#FF4500'
+  mode: advanced-chat
+  name: SpecKit Complete Final 30
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/bedrock:0.0.57@b7fb0414c4e64004a36c3141cb8d9a249d949013bb21efbce34918e71cce5051
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: 'SpecKit へようこそ！
+
+
+      プロジェクトの仕様策定をお手伝いします。
+
+      何をしたいですか？番号または内容を教えてください：
+
+
+      1 新しいプロジェクトを始める（原則定義）
+
+      2 要件・仕様を整理する
+
+      3 曖昧な点を明確にする
+
+      4 技術的な実装計画を立てる
+
+      5 タスクに分解する
+
+      6 全体をレビューする
+
+      7 成果物をエクスポートする
+
+
+      例: 「1」または「ECサイトを作りたい」'
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: start
+        targetType: llm
+      id: 1768452476934-llm
+      source: '1768452476934'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: question-classifier
+      id: llm--1768454089374-target
+      source: llm
+      sourceHandle: source
+      target: '1768454089374'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768454140259-1768706998075-target
+      source: '1768454089374'
+      sourceHandle: '1768454140259'
+      target: '1768706998075'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768715296116-1768715469965-target
+      source: '1768454089374'
+      sourceHandle: '1768715296116'
+      target: '1768715469965'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768706578095-1768717537138-target
+      source: '1768454089374'
+      sourceHandle: '1768706578095'
+      target: '1768717537138'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768715292216-1768717726186-target
+      source: '1768454089374'
+      sourceHandle: '1768715292216'
+      target: '1768717726186'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768715292874-1768717820269-target
+      source: '1768454089374'
+      sourceHandle: '1768715292874'
+      target: '1768717820269'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768715293508-1768717861352-target
+      source: '1768454089374'
+      sourceHandle: '1768715293508'
+      target: '1768717861352'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768715294171-1768717901586-target
+      source: '1768454089374'
+      sourceHandle: '1768715294171'
+      target: '1768717901586'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768715294833-1768717947903-target
+      source: '1768454089374'
+      sourceHandle: '1768715294833'
+      target: '1768717947903'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768715295456-1768717991703-target
+      source: '1768454089374'
+      sourceHandle: '1768715295456'
+      target: '1768717991703'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768719962747-1768719986947-target
+      source: '1768454089374'
+      sourceHandle: '1768719962747'
+      target: '1768719986947'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768720000001-1768720100001-target
+      source: '1768454089374'
+      sourceHandle: '1768720000001'
+      target: '1768720100001'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: question-classifier
+        targetType: answer
+      id: 1768454089374-1768720000002-1768720100002-target
+      source: '1768454089374'
+      sourceHandle: '1768720000002'
+      target: '1768720100002'
+      targetHandle: target
+      type: custom
+    nodes:
+    - data:
+        selected: false
+        title: ユーザー入力
+        type: start
+        variables: []
+      height: 73
+      id: '1768452476934'
+      position:
+        x: 80
+        y: 282
+      positionAbsolute:
+        x: 80
+        y: 282
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: completion
+          name: ai21
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+          edition_type: basic
+          text: 'あなたはSpecKitの仕様策定アシスタントです。ユーザーの入力に基づいて、プロジェクトの仕様策定を支援する詳細な応答を生成してください。
+
+
+            ## ユーザー入力の解釈
+
+            ユーザーは以下の形式で入力します：
+
+            - 番号のみ (1-8): 対応するコマンドの説明を返し、具体的な情報の入力を促す
+
+            - 番号 + 内容 (例: "1 ECサイト"): 対応するコマンドで内容を処理
+
+            - コマンド + 内容 (例: "constitution ECサイト"): コマンドで内容を処理
+
+            - 自然言語 (例: "ECサイトを作りたい"): 最適なコマンドを判断して処理
+
+
+            ## コマンドと処理内容
+
+
+            ### 1 / constitution（原則定義）
+
+            プロジェクトの基本原則を定義します。以下を含めて回答：
+
+            - **プロジェクト目的**: 何を達成するか
+
+            - **スコープ**: 含まれる機能と含まれない機能
+
+            - **成功基準**: どうなれば成功か
+
+            - **制約条件**: 予算、期間、技術的制約
+
+            - **ステークホルダー**: 関係者とその役割
+
+
+            ### 2 / specify（要件仕様）
+
+            機能要件・非機能要件を整理します。以下を含めて回答：
+
+            - **機能要件**: ユーザーストーリー形式で記述
+
+            - **非機能要件**: パフォーマンス、セキュリティ、可用性
+
+            - **優先度**: Must/Should/Could/Won''t
+
+            - **受け入れ基準**: 各要件の完了条件
+
+
+            ### 3 / clarify（明確化）
+
+            曖昧な点を明確化するための質問を生成：
+
+            - 不明確な要件を特定
+
+            - 具体的な質問を5-10個リストアップ
+
+            - 各質問の背景と重要性を説明
+
+
+            ### 4 / plan（実装計画）
+
+            技術実装計画を作成：
+
+            - **アーキテクチャ**: システム構成図
+
+            - **技術スタック**: 言語、フレームワーク、DB等
+
+            - **選定理由**: なぜその技術を選んだか
+
+            - **開発フェーズ**: マイルストーン
+
+
+            ### 5 / tasks（タスク分解）
+
+            実装タスクを分解：
+
+            - タスク一覧（詳細度を高く）
+
+            - 優先度（High/Medium/Low）
+
+            - 依存関係
+
+            - 推定工数
+
+
+            ### 6 / analyze（分析）
+
+            プロジェクトを分析：
+
+            - **リスク分析**: 技術的・ビジネス的リスク
+
+            - **一貫性チェック**: 要件間の矛盾
+
+            - **ギャップ分析**: 不足している要件
+
+            - **推奨事項**: 改善提案
+
+
+            ### 7 / implement（実装支援）
+
+            実装の詳細ガイドを提供：
+
+            - コード例（疑似コードまたは実際のコード）
+
+            - ベストプラクティス
+
+            - 実装上の注意点
+
+            - テスト戦略
+
+
+            ### 8 / checklist（品質チェック）
+
+            品質チェックリストを生成：
+
+            - [ ] 完全性: すべての要件が網羅されているか
+
+            - [ ] 明確性: 曖昧な表現がないか
+
+            - [ ] 一貫性: 矛盾がないか
+
+            - [ ] 検証可能性: テスト可能か
+
+            - 各項目のステータスと改善提案
+
+
+
+            ### 9 / review（全体レビュー）
+
+            プロジェクト全体をレビュー：
+
+            - **要件カバレッジ**: すべての要件が実装計画に含まれているか
+
+            - **リスク評価**: 未解決のリスクや課題
+
+            - **改善提案**: プロジェクト全体の改善点
+
+            - **次のステップ**: 推奨アクション
+
+
+            ### 10 / export（エクスポート）
+
+            成果物をエクスポート：
+
+            - **Markdown形式**: 仕様書全体をMarkdown形式で出力
+
+            - **JSON形式**: 構造化データとしてJSON出力
+
+            - **サマリー**: 主要ポイントのみ抽出
+
+
+            ## 応答ルール
+
+            1. 日本語で応答する
+
+            2. 番号のみの入力の場合は、コマンドの説明を表示し「具体的なプロジェクトや機能を教えてください」と促す
+
+            3. 内容がある場合は、上記のフォーマットに従って詳細な応答を生成
+
+            4. Markdown形式で見やすく整形
+
+            5. 実用的で具体的な内容を心がける
+
+
+            ## ユーザー入力{{#sys.query#}}'
+        selected: true
+        title: LLM
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: llm
+      position:
+        x: 380
+        y: 282
+      positionAbsolute:
+        x: 380
+        y: 282
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        classes:
+        - id: '1768706578095'
+          name: constitution - 番号1、新規プロジェクト、プロジェクト開始、原則定義、作りたい、始める、構築したい
+        - id: '1768715292216'
+          name: specify
+        - id: '1768715292874'
+          name: clarify
+        - id: '1768715293508'
+          name: plan
+        - id: '1768715294171'
+          name: tasks
+        - id: '1768715294833'
+          name: analyze
+        - id: '1768715295456'
+          name: implement - 番号7、実装支援、コード実装、実装ガイド、実装詳細
+        - id: '1768715296116'
+          name: error - 無効な入力、意味不明、番号1-10以外
+        - id: '1768719962747'
+          name: checklist - 品質チェックリスト、要件の完全性・明確性・一貫性を検証
+        - id: '1768720000001'
+          name: review - 番号9、review、レビュー、全体レビュー、プロジェクトレビュー、改善提案
+        - id: '1768720000002'
+          name: export - 番号10、export、エクスポート、出力、Markdown出力、JSON出力
+        instructions: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: completion
+          name: ai21
+          provider: langgenius/bedrock/bedrock
+        query_variable_selector:
+        - '1768452476934'
+        - sys.query
+        selected: false
+        title: Question Classifier
+        type: question-classifier
+        vision:
+          enabled: false
+      height: 436
+      id: '1768454089374'
+      position:
+        x: 680
+        y: 424
+      positionAbsolute:
+        x: 680
+        y: 424
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: 入力を理解できませんでした。番号(1-7)を入力してください。
+        selected: false
+        title: Answer 2
+        type: answer
+        variables: []
+      height: 116
+      id: '1768706998075'
+      position:
+        x: 982
+        y: 932
+      positionAbsolute:
+        x: 982
+        y: 932
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: 申し訳ありません。入力を理解できませんでした。番号(1-7)を入力してください。
+        selected: false
+        title: Answer 3
+        type: answer
+        variables: []
+      height: 132
+      id: '1768715469965'
+      position:
+        x: 982
+        y: 1087
+      positionAbsolute:
+        x: 982
+        y: 1087
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer 8
+        type: answer
+        variables: []
+      height: 103
+      id: '1768717537138'
+      position:
+        x: 982
+        y: 1258
+      positionAbsolute:
+        x: 982
+        y: 1258
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer 5
+        type: answer
+        variables: []
+      height: 103
+      id: '1768717726186'
+      position:
+        x: 982
+        y: 1400
+      positionAbsolute:
+        x: 982
+        y: 1400
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer 6
+        type: answer
+        variables: []
+      height: 103
+      id: '1768717820269'
+      position:
+        x: 982
+        y: 1542
+      positionAbsolute:
+        x: 982
+        y: 1542
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer 7
+        type: answer
+        variables: []
+      height: 103
+      id: '1768717861352'
+      position:
+        x: 982
+        y: 1684
+      positionAbsolute:
+        x: 982
+        y: 1684
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer 8
+        type: answer
+        variables: []
+      height: 103
+      id: '1768717901586'
+      position:
+        x: 982
+        y: 1826
+      positionAbsolute:
+        x: 982
+        y: 1826
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer 9
+        type: answer
+        variables: []
+      height: 103
+      id: '1768717947903'
+      position:
+        x: 982
+        y: 1968
+      positionAbsolute:
+        x: 982
+        y: 1968
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer 10
+        type: answer
+        variables: []
+      height: 103
+      id: '1768717991703'
+      position:
+        x: 982
+        y: 2110
+      positionAbsolute:
+        x: 982
+        y: 2110
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer 11
+        type: answer
+        variables: []
+      height: 103
+      id: '1768719986947'
+      position:
+        x: 982
+        y: 2252
+      positionAbsolute:
+        x: 982
+        y: 2252
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer Review
+        type: answer
+        variables: []
+      height: 107
+      id: '1768720100001'
+      position:
+        x: 982
+        y: 2394
+      positionAbsolute:
+        x: 982
+        y: 2394
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#llm.text#}}'
+        selected: false
+        title: Answer Export
+        type: answer
+        variables: []
+      height: 107
+      id: '1768720100002'
+      position:
+        x: 982
+        y: 2536
+      positionAbsolute:
+        x: 982
+        y: 2536
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 57.05228622691948
+      y: 312.38848896785044
+      zoom: 0.25
+  rag_pipeline_variables: []
