@@ -1,0 +1,2117 @@
+app:
+  description: 'SpecKit v6 - GitHub spec-kit準拠実装'
+  icon: "\U0001F680"
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: SpecKit v6
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/bedrock:0.0.57@b7fb0414c4e64004a36c3141cb8d9a249d949013bb21efbce34918e71cce5051
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables:
+  - description: 'プロジェクト原則（バージョン管理）'
+    id: 'a1b2c3d4-0001-4000-8000-000000000001'
+    name: constitution
+    selector:
+    - conversation
+    - constitution
+    value: ''
+    value_type: string
+  - description: '要件仕様書（spec.md形式）'
+    id: 'a1b2c3d4-0002-4000-8000-000000000002'
+    name: specification
+    selector:
+    - conversation
+    - specification
+    value: ''
+    value_type: string
+  - description: '明確化セッション状態（質問カウント、回答履歴）'
+    id: 'a1b2c3d4-0003-4000-8000-000000000003'
+    name: clarify_state
+    selector:
+    - conversation
+    - clarify_state
+    value: '{"question_count": 0, "answers": []}'
+    value_type: string
+  - description: '技術実装計画（plan.md形式）'
+    id: 'a1b2c3d4-0004-4000-8000-000000000004'
+    name: implementation_plan
+    selector:
+    - conversation
+    - implementation_plan
+    value: ''
+    value_type: string
+  - description: 'タスクリスト（tasks.md形式）'
+    id: 'a1b2c3d4-0005-4000-8000-000000000005'
+    name: task_list
+    selector:
+    - conversation
+    - task_list
+    value: ''
+    value_type: string
+  - description: '分析レポート（analyze結果）'
+    id: 'a1b2c3d4-0006-4000-8000-000000000006'
+    name: analysis_report
+    selector:
+    - conversation
+    - analysis_report
+    value: ''
+    value_type: string
+  - description: '品質チェックリスト（checklist形式）'
+    id: 'a1b2c3d4-0007-4000-8000-000000000007'
+    name: checklist
+    selector:
+    - conversation
+    - checklist
+    value: ''
+    value_type: string
+  - description: '実装進捗状態'
+    id: 'a1b2c3d4-0008-4000-8000-000000000008'
+    name: implement_state
+    selector:
+    - conversation
+    - implement_state
+    value: '{"completed_tasks": [], "current_phase": 0}'
+    value_type: string
+  environment_variables: []
+  features:
+    file_upload:
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+    opening_statement: |
+      # SpecKit v6 へようこそ! (GitHub spec-kit準拠)
+
+      利用可能なコマンド:
+      - **constitution**: プロジェクト原則定義（8ステップワークフロー）
+      - **specify**: 要件仕様書作成（明確化マーカー付き）
+      - **clarify**: 曖昧要件の明確化（最大5問、9カテゴリ分類）
+      - **plan**: 技術実装計画（3フェーズ: 研究→設計→報告）
+      - **tasks**: タスク分解（[TaskID][P?][Story?]形式）
+      - **analyze**: Read-only分析（重大度分類付き）
+      - **checklist**: 要件品質チェック（実装テストではない）
+      - **implement**: タスク実行（TDDベース）
+      - **export**: 成果物エクスポート
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions:
+    - 'constitution ECサイトを作りたい'
+    - 'specify ユーザー認証システム'
+    - 'clarify'
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    # Start -> Clarify State Checker (IF/ELSE)
+    - data:
+        sourceType: start
+        targetType: if-else
+      id: '1736500000001-1736500000005'
+      source: '1736500000001'
+      sourceHandle: source
+      target: '1736500000005'
+      targetHandle: target
+      type: custom
+
+    # Clarify State Checker -> Clarify Handler (clarify中の場合)
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000005-true-1736500000040'
+      source: '1736500000005'
+      sourceHandle: 'true'
+      target: '1736500000040'
+      targetHandle: target
+      type: custom
+
+    # Clarify State Checker -> Command Extractor (それ以外)
+    - data:
+        sourceType: if-else
+        targetType: code
+      id: '1736500000005-false-1736500000010'
+      source: '1736500000005'
+      sourceHandle: 'false'
+      target: '1736500000010'
+      targetHandle: target
+      type: custom
+
+    # Command Extractor -> Command Router (IF/ELSE)
+    - data:
+        sourceType: code
+        targetType: if-else
+      id: '1736500000010-1736500000011'
+      source: '1736500000010'
+      sourceHandle: source
+      target: '1736500000011'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Constitution Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-constitution-1736500000020'
+      source: '1736500000011'
+      sourceHandle: 'constitution'
+      target: '1736500000020'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Specify Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-specify-1736500000030'
+      source: '1736500000011'
+      sourceHandle: 'specify'
+      target: '1736500000030'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Clarify Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-clarify-1736500000040'
+      source: '1736500000011'
+      sourceHandle: 'clarify'
+      target: '1736500000040'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Plan Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-plan-1736500000050'
+      source: '1736500000011'
+      sourceHandle: 'plan'
+      target: '1736500000050'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Tasks Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-tasks-1736500000060'
+      source: '1736500000011'
+      sourceHandle: 'tasks'
+      target: '1736500000060'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Analyze Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-analyze-1736500000070'
+      source: '1736500000011'
+      sourceHandle: 'analyze'
+      target: '1736500000070'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Checklist Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-checklist-1736500000075'
+      source: '1736500000011'
+      sourceHandle: 'checklist'
+      target: '1736500000075'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Implement Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-implement-1736500000080'
+      source: '1736500000011'
+      sourceHandle: 'implement'
+      target: '1736500000080'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Export Handler
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-export-1736500000090'
+      source: '1736500000011'
+      sourceHandle: 'export'
+      target: '1736500000090'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Help Handler (ELSE)
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: '1736500000011-false-1736500000100'
+      source: '1736500000011'
+      sourceHandle: 'false'
+      target: '1736500000100'
+      targetHandle: target
+      type: custom
+
+    # Constitution Handler -> Save Constitution -> Result Aggregator
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: '1736500000020-1736500000021'
+      source: '1736500000020'
+      sourceHandle: source
+      target: '1736500000021'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: '1736500000021-1736500000200'
+      source: '1736500000021'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000020'
+      type: custom
+
+    # Specify Handler -> Save Specification -> Result Aggregator
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: '1736500000030-1736500000031'
+      source: '1736500000030'
+      sourceHandle: source
+      target: '1736500000031'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: '1736500000031-1736500000200'
+      source: '1736500000031'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000030'
+      type: custom
+
+    # Clarify Handler -> Extract Clarify State (Code) -> Save Clarify State -> Result Aggregator
+    - data:
+        sourceType: llm
+        targetType: code
+      id: '1736500000040-1736500000042'
+      source: '1736500000040'
+      sourceHandle: source
+      target: '1736500000042'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: code
+        targetType: assigner
+      id: '1736500000042-1736500000041'
+      source: '1736500000042'
+      sourceHandle: source
+      target: '1736500000041'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: '1736500000041-1736500000200'
+      source: '1736500000041'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000040'
+      type: custom
+
+    # Plan Handler -> Save Implementation Plan -> Result Aggregator
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: '1736500000050-1736500000051'
+      source: '1736500000050'
+      sourceHandle: source
+      target: '1736500000051'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: '1736500000051-1736500000200'
+      source: '1736500000051'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000050'
+      type: custom
+
+    # Tasks Handler -> Save Task List -> Result Aggregator
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: '1736500000060-1736500000061'
+      source: '1736500000060'
+      sourceHandle: source
+      target: '1736500000061'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: '1736500000061-1736500000200'
+      source: '1736500000061'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000060'
+      type: custom
+
+    # Analyze Handler -> Save Analysis Report -> Result Aggregator
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: '1736500000070-1736500000071'
+      source: '1736500000070'
+      sourceHandle: source
+      target: '1736500000071'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: '1736500000071-1736500000200'
+      source: '1736500000071'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000070'
+      type: custom
+
+    # Checklist Handler -> Save Checklist -> Result Aggregator
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: '1736500000075-1736500000076'
+      source: '1736500000075'
+      sourceHandle: source
+      target: '1736500000076'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: '1736500000076-1736500000200'
+      source: '1736500000076'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000075'
+      type: custom
+
+    # Implement Handler -> Save Implement State -> Result Aggregator
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: '1736500000080-1736500000081'
+      source: '1736500000080'
+      sourceHandle: source
+      target: '1736500000081'
+      targetHandle: target
+      type: custom
+
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: '1736500000081-1736500000200'
+      source: '1736500000081'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000080'
+      type: custom
+
+    # Export Handler -> Result Aggregator (no save needed)
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: '1736500000090-1736500000200'
+      source: '1736500000090'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000090'
+      type: custom
+
+    # Help Handler -> Result Aggregator (no save needed)
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: '1736500000100-1736500000200'
+      source: '1736500000100'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000100'
+      type: custom
+
+    # Result Aggregator -> Answer
+    - data:
+        sourceType: variable-aggregator
+        targetType: answer
+      id: '1736500000200-1736500000300'
+      source: '1736500000200'
+      sourceHandle: source
+      target: '1736500000300'
+      targetHandle: target
+      type: custom
+
+    nodes:
+    # 1. Start Node
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables: []
+      height: 117
+      id: '1736500000001'
+      position:
+        x: 80
+        y: 400
+      positionAbsolute:
+        x: 80
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 1.5. Clarify State Checker (IF/ELSE) - clarifyセッション中の短い入力をルーティング
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          # 条件1: clarify_stateがアクティブ (1-4) かつ 完了していない
+          - comparison_operator: 'contains'
+            value: '"completed": false'
+            value_type: constant
+            variable_selector:
+            - conversation
+            - clarify_state
+          # 条件2: ユーザー入力がコマンドではない（短い回答: A, B, C, はい, いいえ等）
+          - comparison_operator: 'not contains'
+            value: 'constitution'
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: 'not contains'
+            value: 'specify'
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: 'not contains'
+            value: 'plan'
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: 'not contains'
+            value: 'tasks'
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: 'not contains'
+            value: 'export'
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: 'not contains'
+            value: 'analyze'
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: 'not contains'
+            value: 'checklist'
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: 'not contains'
+            value: 'implement'
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          logical_operator: 'and'
+        desc: 'clarify中かつユーザー入力がコマンドでない場合、Clarify Handlerへ'
+        selected: false
+        title: Clarify State Checker
+        type: if-else
+      height: 150
+      id: '1736500000005'
+      position:
+        x: 200
+        y: 400
+      positionAbsolute:
+        x: 200
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 2. Command Extractor (Code Node)
+    - data:
+        code: |
+          def main(query: str) -> dict:
+              q = query.strip().lower()
+              first_word = q.split()[0] if q.split() else ""
+
+              commands = ["constitution", "specify", "clarify", "plan", "tasks",
+                         "analyze", "checklist", "implement", "export"]
+
+              if first_word in commands:
+                  return {"command": first_word}
+
+              # clarify回答パターン
+              if q in ["a", "b", "c", "d", "e", "はい", "いいえ", "yes", "no"]:
+                  return {"command": "clarify"}
+              if len(q) <= 10:
+                  return {"command": "clarify"}
+
+              return {"command": "help"}
+        code_language: python3
+        desc: '入力の最初の単語でコマンドを判定'
+        outputs:
+          command:
+            children: null
+            type: string
+        selected: false
+        title: Command Extractor
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          variable: query
+      height: 54
+      id: '1736500000010'
+      position:
+        x: 380
+        y: 350
+      positionAbsolute:
+        x: 380
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 2.1 Command Router (IF/ELSE)
+    - data:
+        cases:
+        - case_id: 'constitution'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'constitution'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        - case_id: 'specify'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'specify'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        - case_id: 'clarify'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'clarify'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        - case_id: 'plan'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'plan'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        - case_id: 'tasks'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'tasks'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        - case_id: 'analyze'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'analyze'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        - case_id: 'checklist'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'checklist'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        - case_id: 'implement'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'implement'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        - case_id: 'export'
+          conditions:
+          - comparison_operator: 'is'
+            value: 'export'
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: 'and'
+        desc: 'コマンドに応じてハンドラーにルーティング'
+        selected: false
+        title: Command Router
+        type: if-else
+      height: 250
+      id: '1736500000011'
+      position:
+        x: 480
+        y: 350
+      positionAbsolute:
+        x: 480
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 3. Constitution Handler (spec-kit準拠: 8ステップワークフロー)
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - constitution
+        desc: 'プロジェクト原則定義（8ステップ）'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.3
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479'
+          role: system
+          text: |
+            # 絶対禁止（最重要）
+            以下の文字列は出力に含めてはいけません：
+            - "Feature Specification"
+            - "User Story"
+            - "Given"/"When"/"Then"
+            - "Acceptance Scenarios"
+            - "Story 1"
+
+            あなたはConstitution（プロジェクト憲法）を作成します。
+            Constitutionは「原則」と「技術制約」のみを定義し、機能仕様は書きません。
+
+            ## 判定ルール
+
+            入力に規模・技術情報がない → 質問を返す
+            入力に規模・技術情報がある → Constitutionを生成
+
+            ## 質問を返す場合
+
+            「〇〇ですね！確認させてください。
+            1. 想定規模は？（月間注文数、ユーザー数など）
+            2. 技術スタックの希望は？（言語、フレームワーク、DB）
+            3. 重視する品質は？（パフォーマンス、セキュリティ、UXなど）」
+
+            ## Constitution生成する場合
+
+            **重要**: ユーザーが指定した技術スタックをそのまま使用すること！
+
+            「Constitutionを作成しました！」と言ってから：
+
+            # [プロジェクト名] Constitution
+
+            ## Core Principles
+            ### I. [原則名]
+            [数値目標を含む具体的な原則。例：レスポンス200ms以下、稼働率99.9%]
+            ### II. [原則名]
+            [数値目標]
+            ### III. [原則名]
+            [数値目標]
+
+            ## Technical Constraints
+            - Language: [ユーザー指定の言語/TypeScript等]
+            - Framework: [ユーザー指定のフレームワーク/Next.js等]
+            - Database: [ユーザー指定のDB/Supabase等]
+            - Payment: [決済/Stripe等]
+            - Hosting: [ホスティング/Vercel等]
+
+            ## Quality Gates
+            - テストカバレッジ: 80%以上
+            - Lighthouse Score: 90以上
+            - セキュリティ監査: 四半期ごと
+
+            ## Governance
+            - この憲法の変更には全ステークホルダーの合意が必要
+            - Version: 1.0.0
+
+            ---
+            次は specify で機能を詳細化できます。
+
+            既存Constitution: {{#conversation.constitution#}}
+        - id: '550e8400-e29b-41d4-a716-446655440001'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Constitution Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000020'
+      position:
+        x: 680
+        y: 50
+      positionAbsolute:
+        x: 680
+        y: 50
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 4. Specify Handler (spec-kit準拠: 明確化マーカー、最大3つ)
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+        desc: '要件仕様書作成（spec.md形式）'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b810-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたは機能仕様書を作成するアシスタントです。会話調で応答してください。
+
+            ## 重要: 既存仕様への追記
+
+            既存の仕様書がある場合は、それを保持して新しい機能を追記してください。
+            出力は「既存の仕様 + 新しい仕様」の統合形式で出力。
+
+            既存の仕様書:
+            {{#conversation.specification#}}
+
+            ## 判定ルール
+
+            入力が「specify」のみ → 質問を返す
+            入力が「specify all」または「全機能」 → ECサイトの全機能仕様書を生成
+            入力に具体的な機能名がある → その機能の仕様書を追記
+
+            ## 出力形式
+
+            「了解しました！[機能名]の仕様書を作成/追記します」と前置きしてから出力。
+
+            既存仕様がある場合:
+            ---
+            [既存の仕様をそのまま出力]
+
+            [新しい仕様を追記]
+            ---
+
+            ## 単一機能の仕様書形式
+
+            # Feature Specification: [機能名]
+
+            ## User Stories
+
+            ### Story 1 - [タイトル] (P1)
+            **Given** [状態] **When** [操作] **Then** [結果]
+
+            ### Story 2 - [タイトル] (P2)
+            ...
+
+            ## Edge Cases
+            - [境界条件]は？
+
+            ## Requirements
+            - FR-001: [機能要件]
+
+            ---
+            曖昧な点があれば clarify で明確化できます。
+
+            Constitution: {{#conversation.constitution#}}
+        - id: '6ba7b811-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Specify Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000030'
+      position:
+        x: 680
+        y: 150
+      positionAbsolute:
+        x: 680
+        y: 150
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 5. Clarify Handler (spec-kit準拠: 9カテゴリ、最大5問、Impact×Uncertainty)
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+        desc: '曖昧要件の明確化（最大5問）'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b812-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたはspec-kit clarifyの専門家です。仕様書の曖昧点を明確化します。
+
+            ## 現在の状態
+            clarify_state: {{#conversation.clarify_state#}}
+            仕様書: {{#conversation.specification#}}
+
+            ## 処理ルール
+
+            **question_count が 0 の場合（新規セッション）:**
+            - 仕様書を分析し、最重要の曖昧点について質問1を提示
+            - 出力末尾に: [STATE:1]
+
+            **question_count が 1-4 の場合（回答受信）:**
+            - 「✅ Q{N}回答受付: {選択肢}」で開始
+            - 仕様書への反映を1文で説明
+            - 次の質問を提示
+            - 出力末尾に: [STATE:{N+1}]
+
+            **question_count が 4 で回答受信（最終）:**
+            - 「✅ Q5回答受付: {選択肢}」で開始
+            - 「clarifyセッション完了」を宣言
+            - 明確化サマリーを出力
+            - 出力末尾に: [STATE:5:DONE]
+
+            ## 質問形式（厳守）
+
+            【{カテゴリ}】(質問 {N}/5)
+            Q: {具体的な質問}
+
+            A) {選択肢1} ← 推奨
+            B) {選択肢2}
+            C) {選択肢3}
+
+            推奨理由: {1文}
+
+            ## 9カテゴリ
+            1. Functional Scope 2. Domain Model 3. UX Flow
+            4. Non-Functional 5. Integration 6. Edge Cases
+            7. Constraints 8. Terminology 9. Completion
+
+            日本語で応答。
+        - id: '6ba7b813-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Clarify Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000040'
+      position:
+        x: 680
+        y: 250
+      positionAbsolute:
+        x: 680
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 6. Plan Handler (spec-kit準拠: 3フェーズワークフロー)
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - implementation_plan
+        desc: '技術実装計画（3フェーズ）'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b814-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたは技術実装計画を作成するアシスタントです。会話調で応答してください。
+
+            ## 重要: 既存計画への追記
+
+            既存の実装計画がある場合は、それを保持して新しい内容を追記してください。
+            出力は「既存の計画 + 新しい計画」の統合形式で出力。
+
+            既存の実装計画:
+            {{#conversation.implementation_plan#}}
+
+            ## 判定ルール
+
+            仕様書がない → 「まず specify で仕様書を作成してください」
+            仕様書がある → 実装計画を生成/追記
+
+            ## 実装計画を生成する場合
+
+            **重要**: Constitutionに記載された技術スタックを必ず使用すること！
+
+            「実装計画を作成/追記しました！」と前置きしてから：
+
+            既存計画がある場合は、既存計画を出力してから新しい内容を追記。
+
+            # Implementation Plan: [プロジェクト名]
+
+            ## Summary
+            [仕様書に基づく概要]
+
+            ## Technical Context
+            （Constitutionから抽出）
+
+            ## Phases
+            [フェーズ別の実装計画]
+
+            ---
+            次は tasks でタスク分解できます。
+
+            Constitution: {{#conversation.constitution#}}
+            仕様書: {{#conversation.specification#}}
+        - id: '6ba7b815-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Plan Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000050'
+      position:
+        x: 680
+        y: 350
+      positionAbsolute:
+        x: 680
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 7. Tasks Handler (spec-kit準拠: [TaskID][P?][Story?]形式)
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - task_list
+        desc: 'タスク分解（spec-kit形式）'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.6
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b816-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたはタスク分解を行うアシスタントです。会話調で応答してください。
+
+            ## 重要: 既存タスクへの追記
+
+            既存のタスクリストがある場合は、それを保持して新しいタスクを追記してください。
+            タスク番号は既存の最大番号から続けて割り当て。
+
+            既存のタスクリスト:
+            {{#conversation.task_list#}}
+
+            ## 判定ルール
+
+            実装計画がない → 「まず plan で実装計画を作成してください」
+            実装計画がある → タスクリストを生成/追記
+
+            ## タスクリストを生成する場合
+
+            「タスクリストを作成/追記しました！」と前置きしてから：
+
+            既存タスクがある場合は、既存タスクを出力してから新しいタスクを追記。
+
+            # Tasks: [プロジェクト名]
+
+            ## Phase N: [フェーズ名]
+            - [ ] TXXX [タスク内容] (優先度, ストーリーポイント, 依存)
+
+            ---
+            [P]は並列実行可能、[US1]等はストーリー番号です。
+            次は implement で実装を開始できます。
+
+            実装計画: {{#conversation.implementation_plan#}}
+            仕様書: {{#conversation.specification#}}
+        - id: '6ba7b817-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Tasks Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000060'
+      position:
+        x: 680
+        y: 450
+      positionAbsolute:
+        x: 680
+        y: 450
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 8. Analyze Handler (spec-kit準拠: Read-only、6検出パス、重大度分類)
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+        desc: 'Read-only分析（重大度分類）'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b818-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたはspec-kit analyzeの専門家です。
+            GitHub spec-kitのRead-only分析を実行します。
+
+            ## 重要: READ-ONLYモード
+            ファイルを**絶対に変更しない**。提案のみ。
+
+            ## 6つの検出パス
+
+            1. **Duplications** - 重複した要件や定義
+            2. **Vague Language** - 「速い」「良い」など測定基準のない表現
+            3. **Underspecified** - 詳細が不足している要件
+            4. **Constitutional Alignment** - constitution原則との整合性
+            5. **Coverage Gaps** - 要件とタスクの未マッピング
+            6. **Terminology Inconsistency** - 用語の不統一
+
+            ## 重大度分類
+
+            | 重大度 | 基準 |
+            |--------|------|
+            | **CRITICAL** | ベースラインをブロック / constitution MUSTに違反 |
+            | **HIGH** | 競合 / セキュリティの曖昧さ |
+            | **MEDIUM** | 用語のドリフト |
+            | **LOW** | スタイルの問題 |
+
+            ## 出力形式
+
+            ```markdown
+            # Analysis Report
+
+            ## Findings (最大50件)
+
+            | ID | Category | Severity | Location | Summary | Recommendation |
+            |----|----------|----------|----------|---------|----------------|
+            | A001 | Vague | HIGH | spec.md §3.2 | 「高速」に指標なし | 応答時間200ms以下を明記 |
+
+            ## Coverage Matrix
+
+            | Requirement | Tasks | Status |
+            |-------------|-------|--------|
+            | FR1 | T001, T003 | ✓ |
+            | FR2 | - | ⚠ Gap |
+
+            ## Constitutional Alignment
+
+            - [CRITICAL] 原則3「単一責任」に違反: TaskHandlerが複数責務
+
+            ## Unmapped Tasks
+            - T015: 仕様書に対応する要件なし
+
+            ## Metrics
+            - 総要件数: 12
+            - カバレッジ: 83%
+            - CRITICAL: 1, HIGH: 3, MEDIUM: 5, LOW: 2
+
+            ## Next Actions
+            1. `clarify` でFR2を詳細化
+            2. `tasks` でT015を削除または要件追加
+            ```
+
+            ## 分析対象:
+            - 仕様書: {{#conversation.specification#}}
+            - 実装計画: {{#conversation.implementation_plan#}}
+            - タスク: {{#conversation.task_list#}}
+            - constitution: {{#conversation.constitution#}}
+
+            必ず日本語で応答してください。
+        - id: '6ba7b819-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Analyze Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000070'
+      position:
+        x: 680
+        y: 550
+      positionAbsolute:
+        x: 680
+        y: 550
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 9. Checklist Handler (spec-kit準拠: 要件品質チェック、CHK形式)
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+        desc: '要件品質チェック（実装テストではない）'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b820-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたはspec-kit checklistジェネレーターです。
+            以下の**正確なchecklist-template.md形式**でチェックリストを生成してください。
+
+            ## 出力形式（この形式に厳密に従うこと）
+
+            ```markdown
+            # [CHECKLIST TYPE] Checklist: [FEATURE NAME]
+
+            **Purpose**: [このチェックリストがカバーする内容]
+            **Created**: [YYYY-MM-DD]
+            **Feature**: spec.mdへのリンク
+
+            ## [Category 1 - 例: Completeness]
+
+            - [ ] CHK001 [具体的なチェック項目] [Spec §X.Y]
+            - [ ] CHK002 [具体的なチェック項目] [Gap]
+            - [ ] CHK003 [具体的なチェック項目] [Ambiguity]
+
+            ## [Category 2 - 例: Clarity]
+
+            - [ ] CHK004 [具体的なチェック項目] [Spec §X.Y]
+            - [ ] CHK005 [具体的なチェック項目] [Conflict: §X vs §Y]
+            - [ ] CHK006 [具体的なチェック項目]
+
+            ## [Category 3 - 例: Consistency]
+
+            - [ ] CHK007 [具体的なチェック項目]
+            - [ ] CHK008 [具体的なチェック項目]
+
+            ## Notes
+
+            - 完了したら `[x]` でマーク
+            - コメントや発見事項をインラインで追加
+            - 関連リソースやドキュメントへリンク
+            - 参照しやすいよう連番でナンバリング
+            ```
+
+            ## 重要: 要件品質 ≠ 実装テスト
+
+            **禁止（実装テスト）:**
+            - ❌ 「ボタンが正しくクリックできることを確認」
+            - ❌ 「エラーハンドリングが機能することをテスト」
+            - ❌ 「Verify」「Test」「Confirm」で始まる項目
+
+            **推奨（要件品質）:**
+            - ✓ 「エラーシナリオが要件に完全に記載されているか？」
+            - ✓ 「'目立つ表示'が具体的なサイズで定量化されているか？」
+            - ✓ 「ナビゲーション要件がセクション間で矛盾していないか？」
+
+            ## カテゴリ例
+
+            ユーザーのリクエストに応じて適切なカテゴリを選択:
+            - **Completeness**: 必要な要件がすべて存在するか
+            - **Clarity**: 具体的で曖昧さがないか
+            - **Consistency**: 仕様書全体で整合性があるか
+            - **Measurability**: 客観的に検証可能か
+            - **Security**: セキュリティ要件が網羅されているか
+            - **Performance**: 性能要件が定義されているか
+            - **Accessibility**: アクセシビリティ要件があるか
+            - **Edge Cases**: 境界条件が定義されているか
+
+            ## マーカー
+
+            - `[Spec §X.Y]`: 仕様書のセクション参照
+            - `[Gap]`: 仕様に欠けている
+            - `[Ambiguity]`: 曖昧な表現
+            - `[Conflict: §X vs §Y]`: 矛盾がある
+
+            ## 対象仕様書:
+            {{#conversation.specification#}}
+
+            ユーザーのリクエスト（例: "security", "ux", "performance"）に基づいて
+            適切なチェックリストを生成してください。
+            必ず日本語で応答してください。
+        - id: '6ba7b821-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Checklist Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000075'
+      position:
+        x: 680
+        y: 620
+      positionAbsolute:
+        x: 680
+        y: 620
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 10. Implement Handler (spec-kit準拠: チェックリスト検証、TDD、進捗追跡)
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - task_list
+        desc: 'タスク実行（TDDベース）'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.6
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b81a-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたはspec-kit implementの専門家です。
+            GitHub spec-kitの実装ワークフローに従います。
+
+            ## Phase 1: チェックリスト検証
+
+            チェックリストが存在する場合:
+            ```
+            | Checklist | Total | Complete | Status |
+            |-----------|-------|----------|--------|
+            | ux.md     | 10    | 8        | ⚠ 2 incomplete |
+            ```
+
+            未完了項目がある場合:
+            「2件の未完了チェック項目があります。続行しますか？」
+
+            ## Phase 2: コンテキスト読込
+
+            以下を参照:
+            - tasks.md (タスクリスト)
+            - plan.md (アーキテクチャ)
+            - data-model.md (オプション)
+            - contracts/ (オプション)
+
+            ## Phase 3: プロジェクトセットアップ
+
+            .gitignore等の設定ファイルを確認/生成。
+
+            ## Phase 4: タスク解析
+
+            タスクファイルから抽出:
+            - フェーズ
+            - 依存関係
+            - 並列マーカー `[P]`
+
+            ## Phase 5-7: 実装 & 追跡
+
+            **TDDワークフロー:**
+            1. テストを先に書く
+            2. 実装
+            3. テスト実行
+            4. タスクを`[X]`でマーク
+
+            **進捗報告:**
+            ```
+            ## Progress Report
+
+            Phase: Foundation (2/3)
+            - [X] T001: Database setup
+            - [X] T002: Model creation
+            - [ ] T003: API endpoints (in progress)
+
+            Next: T003 - Create user endpoints
+            ```
+
+            ## Phase 8: 検証
+
+            - 全タスク完了確認
+            - テスト通過確認
+            - 仕様との整合性確認
+
+            ## タスクリスト:
+            {{#conversation.task_list#}}
+
+            ## 実装計画:
+            {{#conversation.implementation_plan#}}
+
+            ## 実装状態:
+            {{#conversation.implement_state#}}
+
+            必ず日本語で応答してください。
+        - id: '6ba7b81b-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Implement Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000080'
+      position:
+        x: 680
+        y: 700
+      positionAbsolute:
+        x: 680
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 11. Export Handler
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - constitution
+        desc: '成果物のエクスポート'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+        model:
+          completion_params:
+            temperature: 0.3
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b81c-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたは成果物をエクスポートするアシスタントです。会話調で応答してください。
+
+            「現在の成果物をまとめました！」と前置きしてから出力。
+
+            ## 出力形式
+
+            # プロジェクト成果物
+
+            ## 進捗サマリー
+            - Constitution: [あれば○、なければ×]
+            - Specification: [あれば○、なければ×]
+            - Plan: [あれば○、なければ×]
+            - Tasks: [あれば○、なければ×]
+
+            ## 詳細
+
+            ### 1. Constitution
+            {{#conversation.constitution#}}
+            （空なら「未作成 - constitution コマンドで作成」）
+
+            ### 2. Specification
+            {{#conversation.specification#}}
+            （空なら「未作成 - specify コマンドで作成」）
+
+            ### 3. Plan
+            {{#conversation.implementation_plan#}}
+            （空なら「未作成 - plan コマンドで作成」）
+
+            ### 4. Tasks
+            {{#conversation.task_list#}}
+            （空なら「未作成 - tasks コマンドで作成」）
+
+            ---
+            未作成のものがあれば、該当コマンドで作成できます！
+        - id: '6ba7b81d-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Export Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000090'
+      position:
+        x: 680
+        y: 780
+      positionAbsolute:
+        x: 680
+        y: 780
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 12. Help Handler
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 'ヘルプとエラー処理'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: '6ba7b81e-9dad-11d1-80b4-00c04fd430c8'
+          role: system
+          text: |
+            あなたはSpecKit v6のヘルプ担当AIです。
+            GitHub spec-kit準拠の実装をサポートします。
+
+            ## 利用可能なコマンド
+
+            | コマンド | 説明 | spec-kit準拠 |
+            |----------|------|-------------|
+            | constitution | プロジェクト原則（8ステップ） | constitution.md |
+            | specify | 要件仕様書（明確化マーカー） | specify.md |
+            | clarify | 曖昧要件の明確化（最大5問） | clarify.md |
+            | plan | 技術実装計画（3フェーズ） | plan.md |
+            | tasks | タスク分解（[T001][P?]形式） | tasks.md |
+            | analyze | Read-only分析（重大度分類） | analyze.md |
+            | checklist | 要件品質チェック | checklist.md |
+            | implement | タスク実行（TDD） | implement.md |
+            | export | 成果物エクスポート | - |
+
+            ## 推奨ワークフロー
+
+            ```
+            constitution → specify → clarify → plan → tasks → checklist → analyze → implement
+            ```
+
+            ## 使い方の例
+
+            - 「constitution ECサイトを作りたい」
+            - 「specify ユーザー認証システム」
+            - 「clarify」（仕様書の曖昧点を質問）
+            - 「plan」（技術計画を生成）
+            - 「tasks」（タスク分解）
+            - 「checklist security」（セキュリティ品質チェック）
+            - 「analyze」（全体分析）
+            - 「implement」（実装開始）
+
+            必ず日本語で応答してください。
+        - id: '6ba7b81f-9dad-11d1-80b4-00c04fd430c8'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Help Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1736500000100'
+      position:
+        x: 680
+        y: 860
+      positionAbsolute:
+        x: 680
+        y: 860
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 13. Save Constitution (Assigner V2)
+    - data:
+        desc: 'Constitutionを会話変数に保存'
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000020'
+          - text
+          variable_selector:
+          - conversation
+          - constitution
+        selected: false
+        title: Save Constitution
+        type: assigner
+        version: '2'
+      height: 90
+      id: '1736500000021'
+      position:
+        x: 930
+        y: 50
+      positionAbsolute:
+        x: 930
+        y: 50
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 14. Save Specification (Assigner V2)
+    - data:
+        desc: 'Specificationを会話変数に保存'
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000030'
+          - text
+          variable_selector:
+          - conversation
+          - specification
+        selected: false
+        title: Save Specification
+        type: assigner
+        version: '2'
+      height: 90
+      id: '1736500000031'
+      position:
+        x: 930
+        y: 150
+      positionAbsolute:
+        x: 930
+        y: 150
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 14.5. Extract Clarify State (Code) - LLM出力から状態マーカーを抽出
+    - data:
+        code: |
+          import re
+          import json
+
+          def main(llm_output: str, current_state: str) -> dict:
+              # [STATE:N] or [STATE:N:DONE] パターンを検出
+              match = re.search(r'\[STATE:(\d+)(?::DONE)?\]', llm_output)
+
+              if match:
+                  count = int(match.group(1))
+                  done = ':DONE' in llm_output
+
+                  # 現在の回答履歴を取得
+                  try:
+                      state = json.loads(current_state)
+                      answers = state.get('answers', [])
+                  except:
+                      answers = []
+
+                  new_state = {
+                      "question_count": count,
+                      "answers": answers,
+                      "completed": done
+                  }
+                  return {"state_json": json.dumps(new_state, ensure_ascii=False)}
+
+              # マーカーなし: 質問1が出された（新規セッション開始）
+              # "質問 1/5" を検出
+              if '質問 1/5' in llm_output or '(質問 1/5)' in llm_output:
+                  return {"state_json": '{"question_count": 1, "answers": [], "completed": false}'}
+
+              # フォールバック: 現在の状態を維持
+              return {"state_json": current_state}
+        code_language: python3
+        desc: 'LLM出力から[STATE:N]を抽出してJSON化'
+        outputs:
+          state_json:
+            children: null
+            type: string
+        selected: false
+        title: Extract Clarify State
+        type: code
+        variables:
+        - value_selector:
+          - '1736500000040'
+          - text
+          variable: llm_output
+        - value_selector:
+          - conversation
+          - clarify_state
+          variable: current_state
+      height: 98
+      id: '1736500000042'
+      position:
+        x: 880
+        y: 250
+      positionAbsolute:
+        x: 880
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 15. Save Clarify State (Assigner V2)
+    - data:
+        desc: 'Clarify状態を会話変数に保存'
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000042'
+          - state_json
+          variable_selector:
+          - conversation
+          - clarify_state
+        selected: false
+        title: Save Clarify State
+        type: assigner
+        version: '2'
+      height: 90
+      id: '1736500000041'
+      position:
+        x: 1030
+        y: 250
+      positionAbsolute:
+        x: 1030
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 16. Save Implementation Plan (Assigner V2)
+    - data:
+        desc: '実装計画を会話変数に保存'
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000050'
+          - text
+          variable_selector:
+          - conversation
+          - implementation_plan
+        selected: false
+        title: Save Plan
+        type: assigner
+        version: '2'
+      height: 90
+      id: '1736500000051'
+      position:
+        x: 930
+        y: 350
+      positionAbsolute:
+        x: 930
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 17. Save Task List (Assigner V2)
+    - data:
+        desc: 'タスクリストを会話変数に保存'
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000060'
+          - text
+          variable_selector:
+          - conversation
+          - task_list
+        selected: false
+        title: Save Tasks
+        type: assigner
+        version: '2'
+      height: 90
+      id: '1736500000061'
+      position:
+        x: 930
+        y: 450
+      positionAbsolute:
+        x: 930
+        y: 450
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 18. Save Analysis Report (Assigner V2)
+    - data:
+        desc: '分析レポートを会話変数に保存'
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000070'
+          - text
+          variable_selector:
+          - conversation
+          - analysis_report
+        selected: false
+        title: Save Analysis
+        type: assigner
+        version: '2'
+      height: 90
+      id: '1736500000071'
+      position:
+        x: 930
+        y: 550
+      positionAbsolute:
+        x: 930
+        y: 550
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 19. Save Checklist (Assigner V2)
+    - data:
+        desc: 'チェックリストを会話変数に保存'
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000075'
+          - text
+          variable_selector:
+          - conversation
+          - checklist
+        selected: false
+        title: Save Checklist
+        type: assigner
+        version: '2'
+      height: 90
+      id: '1736500000076'
+      position:
+        x: 930
+        y: 620
+      positionAbsolute:
+        x: 930
+        y: 620
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 20. Save Implement State (Assigner V2)
+    - data:
+        desc: '実装状態を会話変数に保存'
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000080'
+          - text
+          variable_selector:
+          - conversation
+          - implement_state
+        selected: false
+        title: Save Implement
+        type: assigner
+        version: '2'
+      height: 90
+      id: '1736500000081'
+      position:
+        x: 930
+        y: 700
+      positionAbsolute:
+        x: 930
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 21. Result Aggregator
+    - data:
+        advanced_settings:
+          group_enabled: false
+          groups: []
+        desc: '全ブランチの結果を統合'
+        output_type: string
+        selected: false
+        title: Result Aggregator
+        type: variable-aggregator
+        variables:
+        - - '1736500000020'
+          - text
+        - - '1736500000030'
+          - text
+        - - '1736500000040'
+          - text
+        - - '1736500000050'
+          - text
+        - - '1736500000060'
+          - text
+        - - '1736500000070'
+          - text
+        - - '1736500000075'
+          - text
+        - - '1736500000080'
+          - text
+        - - '1736500000090'
+          - text
+        - - '1736500000100'
+          - text
+      height: 250
+      id: '1736500000200'
+      position:
+        x: 1230
+        y: 380
+      positionAbsolute:
+        x: 1230
+        y: 380
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 22. Answer Node
+    - data:
+        answer: '{{#1736500000200.output#}}'
+        desc: ''
+        selected: false
+        title: Answer
+        type: answer
+        variables:
+        - value_selector:
+          - '1736500000200'
+          - output
+          variable: output
+      height: 107
+      id: '1736500000300'
+      position:
+        x: 1530
+        y: 430
+      positionAbsolute:
+        x: 1530
+        y: 430
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7
+  rag_pipeline_variables: []

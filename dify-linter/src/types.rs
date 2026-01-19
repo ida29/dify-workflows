@@ -51,6 +51,16 @@ impl LintError {
             fix_hint: None,
         }
     }
+
+    pub fn warning_with_hint(node_id: &str, node_title: &str, message: &str, hint: &str) -> Self {
+        Self {
+            severity: Severity::Warning,
+            node_id: node_id.to_string(),
+            node_title: node_title.to_string(),
+            message: message.to_string(),
+            fix_hint: Some(hint.to_string()),
+        }
+    }
 }
 
 /// Root Dify DSL structure

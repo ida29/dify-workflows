@@ -42,6 +42,9 @@ pub fn check_nodes(nodes: &[Node], ctx: &LintContext) -> Vec<LintError> {
             "variable-assigner" => {
                 errors.extend(check_variable_assigner(node_id, node_title, node_data))
             }
+            "assigner" => {
+                errors.extend(check_assigner_v2(node_id, node_title, node_data))
+            }
             _ => {}
         }
     }
@@ -341,6 +344,15 @@ fn check_variable_aggregator(
 fn check_variable_assigner(node_id: &str, node_title: &str, data: &NodeData) -> Vec<LintError> {
     let mut errors = Vec::new();
 
+    // WARNING: Variable Assigner may cause client-side errors in Dify 1.10.x
+    // See: https://github.com/langgenius/dify/issues/XXXX
+    errors.push(LintError::warning_with_hint(
+        node_id,
+        node_title,
+        "Variable Assigner node may cause 'e.slice is not a function' error in Dify 1.10.x",
+        "Consider using Variable Aggregator instead, or test carefully after import",
+    ));
+
     // Check variables have write_mode
     if let Some(Value::Array(vars)) = &data.variables {
         for var in vars {
@@ -352,6 +364,60 @@ fn check_variable_assigner(node_id: &str, node_title: &str, data: &NodeData) -> 
                         "Variable Assigner variable missing 'write_mode'",
                         "Add: write_mode: 'over-write'",
                     ));
+                }
+            }
+        }
+    }
+
+    errors
+}
+
+/// Check Assigner V2 node configuration (new format)
+fn check_assigner_v2(node_id: &str, node_title: &str, data: &NodeData) -> Vec<LintError> {
+    let mut errors = Vec::new();
+
+    // Check version field
+    let version = data.extra.get("version").and_then(|v| v.as_str());
+    if version != Some("2") {
+        errors.push(LintError::warning_with_hint(
+            node_id,
+            node_title,
+            "Assigner node should have version: \"2\"",
+            "Add: version: \"2\"",
+        ));
+    }
+
+    // Check items array exists
+    let items = data.extra.get("items").and_then(|v| v.as_array());
+    match items {
+        None => {
+            errors.push(LintError::error_with_hint(
+                node_id,
+                node_title,
+                "Assigner V2 node missing 'items' array",
+                "Add items array with variable_selector, input_type, operation, value",
+            ));
+        }
+        Some(items_arr) => {
+            for (i, item) in items_arr.iter().enumerate() {
+                if let Some(obj) = item.as_object() {
+                    // Check required fields
+                    if !obj.contains_key("variable_selector") {
+                        errors.push(LintError::error_with_hint(
+                            node_id,
+                            node_title,
+                            &format!("items[{}] missing 'variable_selector'", i),
+                            "Add: variable_selector: [conversation, var_name]",
+                        ));
+                    }
+                    if !obj.contains_key("operation") {
+                        errors.push(LintError::error_with_hint(
+                            node_id,
+                            node_title,
+                            &format!("items[{}] missing 'operation'", i),
+                            "Add: operation: overwrite (or append, clear, etc.)",
+                        ));
+                    }
                 }
             }
         }

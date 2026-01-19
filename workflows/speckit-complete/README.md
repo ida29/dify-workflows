@@ -1,39 +1,47 @@
-# SpecKit Complete - 仕様策定支援ワークフロー
+# SpecKit v6 - GitHub spec-kit準拠の仕様策定支援ワークフロー
 
-GitHub SpecKitの仕様策定フレームワークをDifyで実装したチャットボットです。
+[GitHub spec-kit](https://github.com/github/spec-kit)の仕様策定フレームワークをDifyで実装したチャットボットです。
 
 ## 概要
 
-プロジェクトの仕様策定を段階的にサポートします。
+プロジェクトの仕様策定をSpec-Driven Development (SDD)手法でサポートします。
 
-- **アプリ名**: SpecKit Complete Final 30
+- **アプリ名**: SpecKit v6
 - **モード**: Chatflow (advanced-chat)
 - **LLMプロバイダー**: AWS Bedrock (Amazon Nova)
+- **準拠**: GitHub spec-kit (github/spec-kit)
 
 ## 利用可能なコマンド
 
-| コマンド | 説明 | 用途 |
-|---------|------|------|
-| `constitution` | プロジェクト原則定義 | プロジェクトの基本方針・ガイドラインを定義 |
-| `specify` | 要件仕様書作成 | 機能要件・非機能要件を整理 |
-| `clarify` | 曖昧な点の明確化 | 不明確な要件を質問形式で明確化 |
-| `plan` | 技術実装計画 | アーキテクチャ・技術スタック選定 |
-| `tasks` | タスク分解 | 実装タスクを優先順位付きで分解 |
-| `analyze` | 要件分析 | 一貫性チェック・リスク分析 |
-| `review` | 全体レビュー | プロジェクト全体の評価・改善提案 |
-| `export` | 成果物エクスポート | 全成果物をMarkdown形式で出力 |
+| コマンド | 説明 | spec-kit準拠 |
+|---------|------|-------------|
+| `constitution` | プロジェクト原則定義（8ステップワークフロー） | constitution.md |
+| `specify` | 要件仕様書作成（明確化マーカー付き） | specify.md |
+| `clarify` | 曖昧要件の明確化（最大5問、9カテゴリ） | clarify.md |
+| `plan` | 技術実装計画（3フェーズ: 研究→設計→報告） | plan.md |
+| `tasks` | タスク分解（[TaskID][P?][Story?]形式） | tasks.md |
+| `analyze` | Read-only分析（重大度分類付き） | analyze.md |
+| `checklist` | 要件品質チェック（実装テストではない） | checklist.md |
+| `implement` | タスク実行（TDDベース） | implement.md |
+| `export` | 成果物エクスポート | - |
 
 ## 使い方
 
-### 基本的な流れ
+### 推奨ワークフロー
 
-1. **constitution**: まずプロジェクトの原則を定義
-2. **specify**: 詳細な要件仕様を作成
-3. **clarify**: 曖昧な点を対話形式で明確化
-4. **plan**: 技術的な実装計画を立案
-5. **tasks**: 具体的なタスクに分解
-6. **review**: 全体をレビュー
-7. **export**: 成果物を出力
+```
+constitution → specify → clarify → plan → tasks → checklist → analyze → implement
+```
+
+1. **constitution**: プロジェクトの原則を定義（バージョン管理付き）
+2. **specify**: 詳細な要件仕様を作成（`[NEEDS CLARIFICATION]`マーカー付き）
+3. **clarify**: 曖昧な点を最大5問で明確化（9カテゴリ分類）
+4. **plan**: 3フェーズで技術計画を立案（Research→Design→Planning）
+5. **tasks**: `[T001] [P] [US1]`形式でタスク分解
+6. **checklist**: 要件品質をチェック（実装テストではなく要件の品質）
+7. **analyze**: Read-only分析で問題を検出（重大度: CRITICAL/HIGH/MEDIUM/LOW）
+8. **implement**: TDDワークフローでタスク実行
+9. **export**: 全成果物を出力
 
 ### 入力例
 
@@ -42,165 +50,153 @@ constitution ECサイトを構築したい
 ```
 
 ```
-specify ユーザー認証機能の要件を整理して
+specify ユーザー認証機能
 ```
 
 ```
-tasks API開発のタスクを分解して
+clarify
 ```
+
+```
+checklist security
+```
+
+## spec-kit準拠の詳細
+
+### constitution（8ステップワークフロー）
+
+1. テンプレート読込
+2. 値収集（プロジェクト名、バージョン、日付）
+3. ドラフト作成（宣言的でテスト可能な原則）
+4. 一貫性伝播
+5. 同期レポート（HTMLコメントで変更記録）
+6. 検証
+7. 出力
+8. サマリー
+
+出力例:
+```markdown
+# ECサイト Constitution
+Version: 1.0.0
+Ratified: 2026-01-19
+
+## Core Principles
+1. すべての関数は単一責任原則に従う
+2. ユーザーデータは暗号化して保存する
+...
+```
+
+### clarify（9カテゴリ分類、最大5問）
+
+**カテゴリ:**
+1. Functional Scope & Behavior
+2. Domain & Data Model
+3. Interaction & UX Flow
+4. Non-Functional Quality
+5. Integration & Dependencies
+6. Edge Cases & Failure
+7. Constraints & Tradeoffs
+8. Terminology & Consistency
+9. Completion Signals
+
+**ルール:**
+- 最大5問（セッション全体で）
+- 1問ずつ提示
+- 優先順位 = Impact × Uncertainty
+- 選択式または短答式
+
+### tasks（spec-kit形式）
+
+```markdown
+## Phase: Setup
+- [ ] [T001] [P] Initialize project structure in /src
+- [ ] [T002] [P] Configure build tools in /build
+
+## Phase: User Story - US1
+- [ ] [T003] [US1] Implement login form in /src/components/LoginForm.tsx
+- [ ] [T004] [US1] [P] Add validation in /src/utils/validation.ts
+```
+
+### analyze（Read-only、重大度分類）
+
+**重大度:**
+| 重大度 | 基準 |
+|--------|------|
+| CRITICAL | ベースラインをブロック / constitution MUSTに違反 |
+| HIGH | 競合 / セキュリティの曖昧さ |
+| MEDIUM | 用語のドリフト |
+| LOW | スタイルの問題 |
+
+### checklist（要件品質チェック）
+
+**禁止パターン（実装テスト）:**
+- ❌ 「ボタンが正しくクリックできることを確認」
+
+**推奨パターン（要件品質）:**
+- ✓ 「エラーシナリオが要件に完全に記載されているか？」
 
 ## アーキテクチャ
 
 ```
 Start
   ↓
-Command Validator (IF/ELSE)
-  ├─ 有効なコマンド → Command Parser → Question Classifier
-  │                                        ├─ constitution → Constitution Handler
-  │                                        ├─ specify → Specify Handler → Clarification Detector
-  │                                        ├─ clarify → Clarify Handler
-  │                                        ├─ plan → Plan Handler
-  │                                        ├─ tasks → Tasks Handler
-  │                                        ├─ analyze → Analyze Handler
-  │                                        ├─ review → Review Handler
-  │                                        └─ export → Export Handler
-  └─ 無効なコマンド → Error Handler
-                           ↓
-                    Result Aggregator
-                           ↓
-                    Format Converter
-                           ↓
-                    Memory Updater
-                           ↓
-                        Answer
+Clarify State Checker (IF/ELSE)
+  ├─ clarify進行中 → Clarify Handler (継続)
+  └─ それ以外 ↓
+       Command Extractor (Code Node)
+         ↓
+       Command Router (IF/ELSE) ← 決定論的ルーティング
+         ├─ constitution → Constitution Handler → Save Constitution
+         ├─ specify → Specify Handler → Save Specification
+         ├─ clarify → Clarify Handler → Extract State → Save State
+         ├─ plan → Plan Handler → Save Plan
+         ├─ tasks → Tasks Handler → Save Tasks
+         ├─ analyze → Analyze Handler → Save Analysis
+         ├─ checklist → Checklist Handler → Save Checklist
+         ├─ implement → Implement Handler → Save State
+         ├─ export → Export Handler
+         └─ (else) → Help Handler
+                      ↓
+               Result Aggregator
+                      ↓
+                   Answer
 ```
+
+**特徴:**
+- Question Classifierを廃止し、Code Node + IF/ELSEで決定論的ルーティング
+- 各Handlerは既存の会話変数を参照し、追記形式で出力
+- 複数回のspecify/plan/tasksで内容が蓄積される
 
 ## Conversation Variables
 
-セッション間で状態を保持するための変数：
-
 | 変数名 | 説明 |
 |-------|------|
-| `constitution` | プロジェクト原則 |
-| `specification` | 要件仕様書 |
-| `clarified_requirements` | 明確化された要件 |
-| `implementation_plan` | 技術実装計画 |
-| `task_list` | タスクリスト |
-| `analysis_result` | 分析結果 |
-| `current_command` | 現在のコマンド |
-| `clarification_items` | 明確化が必要な項目 |
-| `clarification_progress` | 明確化の進捗 |
+| `constitution` | プロジェクト原則（バージョン管理） |
+| `specification` | 要件仕様書（spec.md形式） |
+| `clarify_state` | 明確化セッション状態（質問カウント、回答履歴） |
+| `implementation_plan` | 技術実装計画（plan.md形式） |
+| `task_list` | タスクリスト（tasks.md形式） |
+| `analysis_report` | 分析レポート |
+| `checklist` | 品質チェックリスト |
+| `implement_state` | 実装進捗状態 |
+
+## バージョン履歴
+
+| バージョン | 日付 | 変更内容 |
+|-----------|------|----------|
+| v6.2 | 2026-01-20 | Question ClassifierをCode Node + IF/ELSEに置換（決定論的ルーティング）、Handlerに追記機能追加 |
+| v6.1 | 2026-01-19 | spec-kitテンプレート形式を完全準拠（plan-template.md, tasks-template.md, checklist-template.md の正確な形式を使用） |
+| v6 | 2026-01-19 | GitHub spec-kit完全準拠（checklist, implement追加、全コマンド刷新） |
+| v5 | 2026-01-18 | Variable Assigner問題を回避（Variable Aggregator使用） |
+| v4 | 2026-01-17 | 22ノード完全実装版 |
 
 ## アクセス方法
 
 1. http://yida-dify.duckdns.org/explore/apps にアクセス
-2. 左サイドバーから「SpecKit Complete Final 30」を選択
+2. 左サイドバーから「SpecKit v6」を選択
 3. チャット欄にコマンドと内容を入力
-
-## ワークフローファイル
-
-| ファイル | 説明 |
-|---------|------|
-| `workflow_v1_minimal.yml` | 最小構成（3ノード） |
-| `workflow_v2_classifier.yml` | Question Classifier使用版 |
-| `workflow_v3_complete.yml` | 状態管理付き完全版 |
-| `workflow_v4_full.yml` | 22ノード完全実装版 |
-
-## ガイド付き対話（実装済み）
-
-### Opening Statement
-
-会話開始時に以下のメニューを表示：
-
-```
-🚀 SpecKit へようこそ！
-
-プロジェクトの仕様策定をお手伝いします。
-何をしたいですか？番号または内容を教えてください：
-
-1️⃣ 新しいプロジェクトを始める（原則定義）
-2️⃣ 要件・仕様を整理する
-3️⃣ 曖昧な点を明確にする
-4️⃣ 技術的な実装計画を立てる
-5️⃣ タスクに分解する
-6️⃣ 全体をレビューする
-7️⃣ 成果物をエクスポートする
-
-例: 「1」または「ECサイトを作りたい」
-```
-
-### 番号とコマンドのマッピング
-
-| 番号 | コマンド | 説明 |
-|------|----------|------|
-| 1 | constitution | 新しいプロジェクトを始める（原則定義） |
-| 2 | specify | 要件・仕様を整理する |
-| 3 | clarify | 曖昧な点を明確にする |
-| 4 | plan | 技術的な実装計画を立てる |
-| 5 | tasks | タスクに分解する |
-| 6 | review | 全体をレビューする |
-| 7 | export | 成果物をエクスポートする |
-
-### 入力パターン
-
-ユーザーは以下の形式で入力可能：
-
-1. **番号のみ**: `1` → constitution（追加入力を促す）
-2. **番号 + 内容**: `1 ECサイトを作りたい` → constitution ECサイトを作りたい
-3. **コマンド + 内容**: `constitution ECサイトを作りたい`（従来形式）
-4. **自然言語**: `ECサイトを作りたい` → constitutionと判断
-
-### 実装箇所
-
-1. **Conversation Opener**: Opening Statementを有効化してメニュー表示
-2. **Command Parser**: 番号入力と自然言語を解析してコマンドに変換
-3. **Question Classifier**: 柔軟なルーティング
-
-## テスト結果（2026-01-18 再テスト）
-
-| テスト | 入力 | 期待動作 | 結果 | 判定 |
-|-------|------|----------|------|------|
-| 番号のみ | `1` | 追加情報を求める | メニュー再表示 | ✅ |
-| 番号+内容 | `2 ユーザー認証機能の要件を整理` | specify処理 | 詳細な要件整理を出力 | ✅ |
-| 自然言語 | `ECサイトのタスクを分解したい` | tasks処理 | タスク分解を出力 | ✅ |
-| 無効番号 | `8` | エラーメッセージ | Opening Statement再表示 | ⚠️ |
-| 意味不明 | `あいうえお` | エラーメッセージ | 「申し訳ありません。入力を理解できませんでした。番号(1-7)を入力してください。」 | ✅ |
-
-### 改善点
-
-1. **番号のみの入力** - 「1」入力時にメニューを再表示して追加情報を求める動作になった ✅
-2. **無効入力のエラーハンドリング** - 「あいうえお」等の意味不明な入力に対して適切なエラーメッセージを返す ✅
-
-### 修正実施内容（2026-01-18 最終）
-
-1. **Question Classifierを8クラスで再構築**
-   - Class 1: standards（原則定義）
-   - Class 2: specify（要件仕様）
-   - Class 3: clarify（明確化）
-   - Class 4: plan（実装計画）
-   - Class 5: tasks（タスク分解）
-   - Class 6: analyze（分析）
-   - Class 7: implement（実装）
-   - Class 8: error - 無効な入力、意味不明なテキスト、番号1-7以外、コマンドに該当しない入力
-
-2. **全8クラスにAnswerノードを接続**
-   - Class 1-7: LLM/text変数を参照するAnswerノード
-   - Class 8: エラーメッセージを表示するAnswer 3ノード
-
-3. **LLM→回答ノードの接続を削除**
-   - LLMの生出力がそのまま表示される問題を解消
-   - Question Classifierのルーティングのみで応答を生成
-
-## 今後の改善予定
-
-- [x] ガイド付き対話の設計（番号選択式メニュー）
-- [x] ガイド付き対話の実装（Opening Statement）
-- [x] 番号のみ入力のサポート（メニュー再表示で対応）
-- [x] 無効入力のエラーハンドリング改善
-- [ ] 日本語応答の強化
-- [ ] `implement`コマンドの追加（公式SpecKit準拠）
-- [ ] `checklist`コマンドの追加
 
 ## 参考
 
 - [GitHub SpecKit](https://github.com/github/spec-kit) - 公式リポジトリ
+- [Spec-driven development with AI](https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/) - GitHub公式ブログ

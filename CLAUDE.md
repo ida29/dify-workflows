@@ -46,6 +46,7 @@ infra/                     # AWS CDK インフラ定義
 
 | 名前 | モード | 説明 |
 |------|--------|------|
+| SpecKit v6 | advanced-chat | GitHub spec-kit準拠の仕様策定支援（Code Node + IF/ELSEルーティング） |
 | 日本語→英語翻訳 | workflow | シンプルな翻訳 |
 | コード変換機 | completion | プログラミング言語変換 |
 | 顧客レビュー分析 | workflow | 質問分類器でルーティング |
@@ -115,6 +116,35 @@ variables:
   - variable_id: cv_count
     value: 1  # エラーになる
 ```
+
+### IF/ELSEノードの比較演算子
+
+IF/ELSEノードの`comparison_operator`には特定の値のみ使用可能：
+
+```yaml
+# ✅ 正しい: 'is' を使用
+conditions:
+  - comparison_operator: 'is'
+    value: 'constitution'
+    value_type: constant
+    variable_selector:
+      - '1736500000010'
+      - command
+
+# ❌ 間違い: '=' や '==' はエラー
+conditions:
+  - comparison_operator: '='   # エラー
+  - comparison_operator: '=='  # エラー
+```
+
+**使用可能な演算子:**
+- `is`, `is not` - 等価比較
+- `contains`, `not contains` - 部分一致
+- `start with`, `end with` - 前方/後方一致
+- `empty`, `not empty` - 空判定
+- `in`, `not in` - リスト包含
+- `>`, `<`, `≥`, `≤` - 数値比較
+- `null`, `not null` - null判定
 
 ### モデル命名規則
 
