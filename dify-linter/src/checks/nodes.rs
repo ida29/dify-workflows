@@ -115,62 +115,82 @@ fn check_if_else_node(
 ) -> Vec<LintError> {
     let mut errors = Vec::new();
 
-    let conditions = match &data.conditions {
-        Some(c) if !c.is_empty() => c,
-        _ => {
-            errors.push(LintError::error(
-                node_id,
-                node_title,
-                "IF/ELSE node has no conditions",
-            ));
-            return errors;
-        }
-    };
+    // Check for conditions in either legacy format (conditions) or new format (cases)
+    let has_conditions = data.conditions.as_ref().map(|c| !c.is_empty()).unwrap_or(false);
+    let has_cases = data.cases.as_ref().map(|c| !c.is_empty()).unwrap_or(false);
 
-    for cond_group in conditions {
-        if let Some(conds) = &cond_group.conditions {
-            for cond in conds {
-                if let Some(var_selector) = &cond.variable_selector {
-                    if let Some(ref_node_id) = var_selector.first() {
-                        // Check if referenced node exists
-                        if !ctx.node_exists(ref_node_id) && ref_node_id != "sys" {
-                            errors.push(LintError::error_with_hint(
-                                node_id,
-                                node_title,
-                                &format!("IF/ELSE references non-existent node: {}", ref_node_id),
-                                "Use sys.query or valid node ID",
-                            ));
-                        }
+    if !has_conditions && !has_cases {
+        errors.push(LintError::error(
+            node_id,
+            node_title,
+            "IF/ELSE node has no conditions",
+        ));
+        return errors;
+    }
 
-                        // Check if referencing start node with empty variables
-                        if let Some(ref_node) = ctx.get_node(ref_node_id) {
-                            if let Some(ref_data) = &ref_node.data {
-                                if ref_data.node_type.as_deref() == Some("start") {
-                                    let has_vars = ref_data
-                                        .variables
-                                        .as_ref()
-                                        .map(|v| match v {
-                                            Value::Array(arr) => !arr.is_empty(),
-                                            _ => false,
-                                        })
-                                        .unwrap_or(false);
+    // Helper function to check conditions
+    let check_condition = |cond: &crate::types::Condition, errors: &mut Vec<LintError>| {
+        if let Some(var_selector) = &cond.variable_selector {
+            if let Some(ref_node_id) = var_selector.first() {
+                // Check if referenced node exists (sys and conversation are special keywords)
+                if !ctx.node_exists(ref_node_id) && ref_node_id != "sys" && ref_node_id != "conversation" {
+                    errors.push(LintError::error_with_hint(
+                        node_id,
+                        node_title,
+                        &format!("IF/ELSE references non-existent node: {}", ref_node_id),
+                        "Use sys.query or valid node ID",
+                    ));
+                }
 
-                                    if !has_vars && var_selector.len() > 1 {
-                                        let var_name = &var_selector[1];
-                                        errors.push(LintError::error_with_hint(
-                                            node_id,
-                                            node_title,
-                                            &format!(
-                                                "References '{}' from start node, but start has no variables",
-                                                var_name
-                                            ),
-                                            "Either add variables to start node or use sys.query",
-                                        ));
-                                    }
-                                }
+                // Check if referencing start node with empty variables
+                if let Some(ref_node) = ctx.get_node(ref_node_id) {
+                    if let Some(ref_data) = &ref_node.data {
+                        if ref_data.node_type.as_deref() == Some("start") {
+                            let has_vars = ref_data
+                                .variables
+                                .as_ref()
+                                .map(|v| match v {
+                                    Value::Array(arr) => !arr.is_empty(),
+                                    _ => false,
+                                })
+                                .unwrap_or(false);
+
+                            if !has_vars && var_selector.len() > 1 {
+                                let var_name = &var_selector[1];
+                                errors.push(LintError::error_with_hint(
+                                    node_id,
+                                    node_title,
+                                    &format!(
+                                        "References '{}' from start node, but start has no variables",
+                                        var_name
+                                    ),
+                                    "Either add variables to start node or use sys.query",
+                                ));
                             }
                         }
                     }
+                }
+            }
+        }
+    };
+
+    // Check legacy conditions format
+    if let Some(conditions) = &data.conditions {
+        for cond_group in conditions {
+            if let Some(conds) = &cond_group.conditions {
+                for cond in conds {
+                    check_condition(cond, &mut errors);
+                }
+            }
+        }
+    }
+
+    // Check new cases format
+    if let Some(cases) = &data.cases {
+        for case in cases {
+            if let Some(conds) = &case.conditions {
+                for cond in conds {
+                    check_condition(cond, &mut errors);
                 }
             }
         }

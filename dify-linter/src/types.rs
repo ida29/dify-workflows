@@ -130,6 +130,7 @@ pub struct NodeData {
     pub model: Option<Model>,
     pub prompt_template: Option<Value>,
     pub conditions: Option<Vec<ConditionGroup>>,
+    pub cases: Option<Vec<Case>>,  // IF/ELSE cases (new format)
     pub classes: Option<Vec<ClassDefinition>>,
     pub query_variable_selector: Option<Vec<String>>,
     pub variables: Option<Value>,
@@ -147,10 +148,18 @@ pub struct Model {
     pub extra: HashMap<String, Value>,
 }
 
-/// Condition group for IF/ELSE nodes
+/// Condition group for IF/ELSE nodes (legacy format)
 #[derive(Debug, Deserialize)]
 pub struct ConditionGroup {
     pub id: Option<String>,
+    pub conditions: Option<Vec<Condition>>,
+    pub logical_operator: Option<String>,
+}
+
+/// Case for IF/ELSE nodes (new format with case_id)
+#[derive(Debug, Deserialize)]
+pub struct Case {
+    pub case_id: Option<String>,
     pub conditions: Option<Vec<Condition>>,
     pub logical_operator: Option<String>,
 }
@@ -243,6 +252,7 @@ impl Clone for NodeData {
             model: self.model.clone(),
             prompt_template: self.prompt_template.clone(),
             conditions: self.conditions.clone(),
+            cases: self.cases.clone(),
             classes: self.classes.clone(),
             query_variable_selector: self.query_variable_selector.clone(),
             variables: self.variables.clone(),
@@ -266,6 +276,16 @@ impl Clone for ConditionGroup {
     fn clone(&self) -> Self {
         Self {
             id: self.id.clone(),
+            conditions: self.conditions.clone(),
+            logical_operator: self.logical_operator.clone(),
+        }
+    }
+}
+
+impl Clone for Case {
+    fn clone(&self) -> Self {
+        Self {
+            case_id: self.case_id.clone(),
             conditions: self.conditions.clone(),
             logical_operator: self.logical_operator.clone(),
         }
