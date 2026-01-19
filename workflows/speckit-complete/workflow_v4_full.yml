@@ -18,30 +18,48 @@ workflow:
   - description: 'プロジェクト原則'
     id: 'constitution'
     name: 'constitution'
+    value: ''
+    value_type: string
   - description: '要件仕様書'
     id: 'specification'
     name: 'specification'
+    value: ''
+    value_type: string
   - description: '明確化された要件'
     id: 'clarified_requirements'
     name: 'clarified_requirements'
+    value: ''
+    value_type: string
   - description: '技術実装計画'
     id: 'implementation_plan'
     name: 'implementation_plan'
+    value: ''
+    value_type: string
   - description: 'タスクリスト'
     id: 'task_list'
     name: 'task_list'
+    value: ''
+    value_type: string
   - description: '分析結果'
     id: 'analysis_result'
     name: 'analysis_result'
+    value: ''
+    value_type: string
   - description: '現在のコマンド'
     id: 'current_command'
     name: 'current_command'
+    value: ''
+    value_type: string
   - description: '明確化が必要な項目'
     id: 'clarification_items'
     name: 'clarification_items'
+    value: ''
+    value_type: string
   - description: '明確化の進捗'
     id: 'clarification_progress'
     name: 'clarification_progress'
+    value: ''
+    value_type: string
   environment_variables: []
   features:
     file_upload:
@@ -188,13 +206,35 @@ workflow:
       targetHandle: target
       type: custom
 
+    # Command Router -> Implement Handler
+    - data:
+        sourceType: question-classifier
+        targetType: llm
+      id: '1735820000020-1735820000207-1735820000085'
+      source: '1735820000020'
+      sourceHandle: '1735820000207'
+      target: '1735820000085'
+      targetHandle: target
+      type: custom
+
+    # Command Router -> Checklist Handler
+    - data:
+        sourceType: question-classifier
+        targetType: llm
+      id: '1735820000020-1735820000208-1735820000086'
+      source: '1735820000020'
+      sourceHandle: '1735820000208'
+      target: '1735820000086'
+      targetHandle: target
+      type: custom
+
     # Command Router -> Review Handler
     - data:
         sourceType: question-classifier
         targetType: llm
-      id: '1735820000020-1735820000207-1735820000090'
+      id: '1735820000020-1735820000209-1735820000090'
       source: '1735820000020'
-      sourceHandle: '1735820000207'
+      sourceHandle: '1735820000209'
       target: '1735820000090'
       targetHandle: target
       type: custom
@@ -203,9 +243,9 @@ workflow:
     - data:
         sourceType: question-classifier
         targetType: llm
-      id: '1735820000020-1735820000208-1735820000100'
+      id: '1735820000020-1735820000210-1735820000100'
       source: '1735820000020'
-      sourceHandle: '1735820000208'
+      sourceHandle: '1735820000210'
       target: '1735820000100'
       targetHandle: target
       type: custom
@@ -334,6 +374,24 @@ workflow:
     - data:
         sourceType: llm
         targetType: variable-aggregator
+      id: '1735820000085-1735820000110'
+      source: '1735820000085'
+      sourceHandle: source
+      target: '1735820000110'
+      targetHandle: '1735820000085'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: '1735820000086-1735820000110'
+      source: '1735820000086'
+      sourceHandle: source
+      target: '1735820000110'
+      targetHandle: '1735820000086'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
       id: '1735820000090-1735820000110'
       source: '1735820000090'
       sourceHandle: source
@@ -397,22 +455,10 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: Start
+        title: ユーザー入力
         type: start
-        variables:
-        - label: コマンド
-          max_length: 50
-          options: []
-          required: true
-          type: text-input
-          variable: command
-        - label: 要件・プロンプト
-          max_length: 10000
-          options: []
-          required: true
-          type: paragraph
-          variable: prompt
-      height: 116
+        variables: []
+      height: 73
       id: '1735820000001'
       position:
         x: 80
@@ -432,19 +478,11 @@ workflow:
         - id: '1735820000101'
           logical_operator: and
           conditions:
-          - comparison_operator: in
-            value:
-            - constitution
-            - specify
-            - clarify
-            - plan
-            - tasks
-            - analyze
-            - review
-            - export
+          - comparison_operator: contains
+            value: ''
             variable_selector:
-            - '1735820000001'
-            - command
+            - sys
+            - query
         desc: 'コマンドの検証'
         logical_operator: and
         selected: false
@@ -480,8 +518,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.3
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -489,7 +527,7 @@ workflow:
           role: system
           text: |
             コマンドを解析して、適切な処理準備を行います。
-            現在のコマンド: {{#1735820000001.command#}}
+            現在のコマンド: {{#sys.query#}}
 
             以前の実行結果:
             - Constitution: {{#conversation.constitution#}}
@@ -498,7 +536,7 @@ workflow:
             - Tasks: {{#conversation.task_list#}}
         - id: 'parser-002'
           role: user
-          text: '{{#1735820000001.prompt#}}'
+          text: '{{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Command Parser
@@ -535,8 +573,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.3
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -546,7 +584,7 @@ workflow:
             無効なコマンドです。以下のコマンドから選択してください：
             - constitution, specify, clarify, plan, tasks, analyze, review, export
 
-            入力されたコマンド: {{#1735820000001.command#}}
+            入力されたコマンド: {{#sys.query#}}
         selected: false
         structured_output_enabled: false
         title: Error Handler
@@ -584,20 +622,24 @@ workflow:
         - id: '1735820000206'
           name: 'analyze'
         - id: '1735820000207'
-          name: 'review'
+          name: 'implement'
         - id: '1735820000208'
+          name: 'checklist'
+        - id: '1735820000209'
+          name: 'review'
+        - id: '1735820000210'
           name: 'export'
         desc: 'コマンドのルーティング'
         instructions: 'コマンドを適切なハンドラーに振り分ける'
         model:
           completion_params:
             temperature: 0.1
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         query_variable_selector:
-        - '1735820000001'
-        - command
+        - sys
+        - query
         selected: false
         title: Command Router
         topics: []
@@ -634,8 +676,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.7
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -655,7 +697,7 @@ workflow:
             必ず日本語で応答してください。
         - id: 'const-002'
           role: user
-          text: '{{#1735820000001.prompt#}}'
+          text: '{{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Constitution Handler
@@ -695,8 +737,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.7
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -719,7 +761,7 @@ workflow:
             必ず日本語で応答してください。
         - id: 'spec-002'
           role: user
-          text: '{{#1735820000001.prompt#}}'
+          text: '{{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Specify Handler
@@ -786,8 +828,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.3
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -834,6 +876,7 @@ workflow:
         type: variable-assigner
         variables:
         - variable: specification
+          write_mode: over-write
           variable_selector:
           - '1735820000040'
           - text
@@ -869,8 +912,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.5
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -888,7 +931,7 @@ workflow:
             必ず日本語で応答してください。
         - id: 'clarify-002'
           role: user
-          text: '{{#1735820000001.prompt#}}'
+          text: '{{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Clarify Handler
@@ -928,8 +971,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.5
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -953,7 +996,7 @@ workflow:
             {{#1735820000042.text#}}
 
             ユーザーの回答:
-            {{#1735820000001.prompt#}}
+            {{#sys.query#}}
         selected: false
         structured_output_enabled: false
         title: Question Generator
@@ -984,10 +1027,12 @@ workflow:
         type: variable-assigner
         variables:
         - variable: clarification_progress
+          write_mode: over-write
           variable_selector:
           - '1735820000051'
           - text
         - variable: clarified_requirements
+          write_mode: over-write
           variable_selector:
           - '1735820000051'
           - text
@@ -1023,8 +1068,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.7
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1049,7 +1094,7 @@ workflow:
             必ず日本語で応答してください。
         - id: 'plan-002'
           role: user
-          text: '{{#1735820000001.prompt#}}'
+          text: '{{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Plan Handler
@@ -1089,8 +1134,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.6
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1120,7 +1165,7 @@ workflow:
             必ず日本語で応答してください。
         - id: 'tasks-002'
           role: user
-          text: '{{#1735820000001.prompt#}}'
+          text: '{{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Tasks Handler
@@ -1162,8 +1207,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.5
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1187,7 +1232,7 @@ workflow:
             必ず日本語で応答してください。
         - id: 'analyze-002'
           role: user
-          text: '{{#1735820000001.prompt#}}'
+          text: '{{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Analyze Handler
@@ -1209,7 +1254,185 @@ workflow:
       type: custom
       width: 244
 
-    # 17. Review Handler
+    # 17. Implement Handler
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - task_list
+          - conversation
+          - implementation_plan
+        desc: 'タスクの実装支援'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: completion
+          name: ai21
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - edition_type: basic
+          id: 'implement-001'
+          role: system
+          text: |
+            あなたはspec-kit implementの専門家です。
+            タスクリストに基づいて実装を順次実行します。
+
+            実装プロセス：
+            1. タスクリストから次の未完了タスクを特定
+            2. 依存関係をチェック
+            3. 実装手順を詳細に説明
+            4. コード例やコマンドを提示
+            5. 完了条件を明示
+
+            出力形式：
+            ## 現在のタスク
+            [タスク名と説明]
+
+            ## 実装手順
+            1. [ステップ1]
+            2. [ステップ2]
+            ...
+
+            ## コード例
+            ```[言語]
+            [コード]
+            ```
+
+            ## 完了確認
+            - [ ] [確認項目1]
+            - [ ] [確認項目2]
+
+            ## 次のタスク
+            [次に実行すべきタスク]
+
+            タスクリスト: {{#conversation.task_list#}}
+            実装計画: {{#conversation.implementation_plan#}}
+
+            必ず日本語で応答してください。
+        - id: 'implement-002'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Implement Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1735820000085'
+      position:
+        x: 480
+        y: 650
+      positionAbsolute:
+        x: 480
+        y: 650
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 18. Checklist Handler
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+          - conversation
+          - implementation_plan
+        desc: '品質チェックリストの生成'
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.5
+          mode: completion
+          name: ai21
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - edition_type: basic
+          id: 'checklist-001'
+          role: system
+          text: |
+            あなたはspec-kit checklistの専門家です。
+            要件の完全性、明確性、一貫性を検証するチェックリストを生成します。
+
+            チェック観点：
+            1. 完全性 - すべての要件が網羅されているか
+            2. 明確性 - 曖昧な表現がないか
+            3. 一貫性 - 矛盾がないか
+            4. 検証可能性 - テスト可能か
+            5. 実現可能性 - 技術的に実現可能か
+            6. トレーサビリティ - 要件間の追跡ができるか
+
+            出力形式：
+            ## 品質チェックリスト
+
+            ### 1. 完全性チェック
+            - [ ] すべての機能要件が定義されている
+            - [ ] 非機能要件（性能、セキュリティ等）が明記されている
+            - [ ] エッジケースが考慮されている
+            [ステータス: PASS/FAIL/要確認]
+            [改善提案: ...]
+
+            ### 2. 明確性チェック
+            - [ ] 各要件が具体的で測定可能
+            - [ ] 技術用語が適切に定義されている
+            - [ ] 「など」「その他」等の曖昧表現がない
+            [ステータス: PASS/FAIL/要確認]
+            [改善提案: ...]
+
+            ...
+
+            ## サマリー
+            - 合格項目: X/Y
+            - 要改善項目: [リスト]
+            - 推奨アクション: [具体的な次のステップ]
+
+            仕様書: {{#conversation.specification#}}
+            実装計画: {{#conversation.implementation_plan#}}
+
+            必ず日本語で応答してください。
+        - id: 'checklist-002'
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Checklist Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1735820000086'
+      position:
+        x: 480
+        y: 750
+      positionAbsolute:
+        x: 480
+        y: 750
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+
+    # 19. Review Handler
     - data:
         context:
           enabled: true
@@ -1233,8 +1456,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.6
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1261,7 +1484,7 @@ workflow:
             必ず日本語で応答してください。
         - id: 'review-002'
           role: user
-          text: '{{#1735820000001.prompt#}}'
+          text: '{{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Review Handler
@@ -1310,8 +1533,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.3
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1343,7 +1566,7 @@ workflow:
             Markdown形式で整形して出力してください。
         - id: 'export-002'
           role: user
-          text: 'エクスポート形式: {{#1735820000001.prompt#}}'
+          text: 'エクスポート形式: {{#sys.query#}}'
         selected: false
         structured_output_enabled: false
         title: Export Handler
@@ -1388,6 +1611,10 @@ workflow:
           - text
         - - '1735820000080'
           - text
+        - - '1735820000085'
+          - text
+        - - '1735820000086'
+          - text
         - - '1735820000090'
           - text
         - - '1735820000100'
@@ -1423,8 +1650,8 @@ workflow:
         model:
           completion_params:
             temperature: 0.3
-          mode: chat
-          name: amazon nova
+          mode: completion
+          name: ai21
           provider: langgenius/bedrock/bedrock
         prompt_template:
         - edition_type: basic
@@ -1466,9 +1693,10 @@ workflow:
         type: variable-assigner
         variables:
         - variable: current_command
+          write_mode: over-write
           variable_selector:
-          - '1735820000001'
-          - command
+          - sys
+          - query
       height: 132
       id: '1735820000130'
       position:

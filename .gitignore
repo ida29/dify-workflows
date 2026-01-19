@@ -32,3 +32,4 @@ secrets/
 .playwright-mcp/
 .playwright-state.json
 .env.local
+dify-linter/target/
