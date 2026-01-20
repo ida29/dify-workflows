@@ -45,6 +45,12 @@ pub fn check_nodes(nodes: &[Node], ctx: &LintContext) -> Vec<LintError> {
             "assigner" => {
                 errors.extend(check_assigner_v2(node_id, node_title, node_data))
             }
+            "code" => errors.extend(check_code_node(node_id, node_title, node_data, ctx)),
+            "tool" => errors.extend(check_tool_node(node_id, node_title, node_data)),
+            "iteration" => errors.extend(check_iteration_node(node_id, node_title, node_data, ctx)),
+            "knowledge-retrieval" => {
+                errors.extend(check_knowledge_retrieval_node(node_id, node_title, node_data))
+            }
             _ => {}
         }
     }
@@ -483,6 +489,254 @@ fn check_answer_node(
                         &format!("Answer references non-existent node: {}", ref_node_id),
                     ));
                 }
+            }
+        }
+    }
+
+    errors
+}
+
+/// Check Code node configuration
+fn check_code_node(
+    node_id: &str,
+    node_title: &str,
+    data: &NodeData,
+    ctx: &LintContext,
+) -> Vec<LintError> {
+    let mut errors = Vec::new();
+
+    // Check code field exists
+    let code = data.extra.get("code").and_then(|v| v.as_str());
+    if code.is_none() || code.map(|c| c.is_empty()).unwrap_or(true) {
+        errors.push(LintError::error(
+            node_id,
+            node_title,
+            "Code node missing 'code' field",
+        ));
+    }
+
+    // Check code_language
+    let lang = data.extra.get("code_language").and_then(|v| v.as_str());
+    match lang {
+        None => {
+            errors.push(LintError::warning_with_hint(
+                node_id,
+                node_title,
+                "Code node missing 'code_language'",
+                "Add: code_language: python3",
+            ));
+        }
+        Some(l) if l != "python3" && l != "javascript" => {
+            errors.push(LintError::warning(
+                node_id,
+                node_title,
+                &format!("Unknown code_language: {} (expected python3 or javascript)", l),
+            ));
+        }
+        _ => {}
+    }
+
+    // Check outputs
+    let outputs = data.extra.get("outputs");
+    if outputs.is_none() {
+        errors.push(LintError::warning_with_hint(
+            node_id,
+            node_title,
+            "Code node missing 'outputs' definition",
+            "Add outputs with variable names and types",
+        ));
+    }
+
+    // Check variable references in code
+    if let Some(code_str) = code {
+        let re = regex::Regex::new(r"\{\{#([^#]+)#\}\}").unwrap();
+        for cap in re.captures_iter(code_str) {
+            if let Some(ref_str) = cap.get(1) {
+                let parts: Vec<&str> = ref_str.as_str().split('.').collect();
+                if let Some(&ref_node_id) = parts.first() {
+                    if !ctx.node_exists(ref_node_id)
+                        && ref_node_id != "sys"
+                        && ref_node_id != "conversation"
+                    {
+                        errors.push(LintError::error(
+                            node_id,
+                            node_title,
+                            &format!("Code references non-existent node: {}", ref_node_id),
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    errors
+}
+
+/// Check Tool node configuration
+fn check_tool_node(node_id: &str, node_title: &str, data: &NodeData) -> Vec<LintError> {
+    let mut errors = Vec::new();
+
+    // Check provider_id
+    let provider_id = data.extra.get("provider_id").and_then(|v| v.as_str());
+    if provider_id.is_none() || provider_id.map(|p| p.is_empty()).unwrap_or(true) {
+        errors.push(LintError::error_with_hint(
+            node_id,
+            node_title,
+            "Tool node missing 'provider_id'",
+            "Add: provider_id: langgenius/tavily/tavily",
+        ));
+    }
+
+    // Check tool_name
+    let tool_name = data.extra.get("tool_name").and_then(|v| v.as_str());
+    if tool_name.is_none() || tool_name.map(|t| t.is_empty()).unwrap_or(true) {
+        errors.push(LintError::error_with_hint(
+            node_id,
+            node_title,
+            "Tool node missing 'tool_name'",
+            "Add: tool_name: tavily_search or tavily_extract",
+        ));
+    }
+
+    // Validate known providers and tools
+    if let (Some(provider), Some(tool)) = (provider_id, tool_name) {
+        match provider {
+            "langgenius/tavily/tavily" | "tavily" => {
+                if tool != "tavily_search" && tool != "tavily_extract" {
+                    errors.push(LintError::warning(
+                        node_id,
+                        node_title,
+                        &format!("Unknown Tavily tool: {} (expected tavily_search or tavily_extract)", tool),
+                    ));
+                }
+            }
+            "json_process" => {
+                // JSON process tool - valid
+            }
+            _ => {
+                // Unknown provider - just a warning
+                errors.push(LintError::warning(
+                    node_id,
+                    node_title,
+                    &format!("Unknown tool provider: {}", provider),
+                ));
+            }
+        }
+    }
+
+    errors
+}
+
+/// Check Iteration node configuration
+fn check_iteration_node(
+    node_id: &str,
+    node_title: &str,
+    data: &NodeData,
+    ctx: &LintContext,
+) -> Vec<LintError> {
+    let mut errors = Vec::new();
+
+    // Check iterator_selector
+    let iterator = data.extra.get("iterator_selector").and_then(|v| v.as_array());
+    match iterator {
+        None => {
+            errors.push(LintError::error_with_hint(
+                node_id,
+                node_title,
+                "Iteration node missing 'iterator_selector'",
+                "Add: iterator_selector: [node_id, output_var]",
+            ));
+        }
+        Some(arr) => {
+            if let Some(source) = arr.first().and_then(|v| v.as_str()) {
+                if !ctx.node_exists(source) && source != "sys" && source != "conversation" {
+                    errors.push(LintError::error(
+                        node_id,
+                        node_title,
+                        &format!("Iteration references non-existent node: {}", source),
+                    ));
+                }
+            }
+        }
+    }
+
+    // Check output_selector
+    let output = data.extra.get("output_selector").and_then(|v| v.as_array());
+    if output.is_none() {
+        errors.push(LintError::warning_with_hint(
+            node_id,
+            node_title,
+            "Iteration node missing 'output_selector'",
+            "Add: output_selector: [inner_node_id, output_var]",
+        ));
+    }
+
+    errors
+}
+
+/// Check Knowledge Retrieval node configuration
+fn check_knowledge_retrieval_node(
+    node_id: &str,
+    node_title: &str,
+    data: &NodeData,
+) -> Vec<LintError> {
+    let mut errors = Vec::new();
+
+    // Check dataset_ids
+    let dataset_ids = data.extra.get("dataset_ids").and_then(|v| v.as_array());
+    if dataset_ids.is_none() || dataset_ids.map(|d| d.is_empty()).unwrap_or(true) {
+        errors.push(LintError::error_with_hint(
+            node_id,
+            node_title,
+            "Knowledge Retrieval node missing 'dataset_ids'",
+            "Add dataset_ids array with knowledge base UUIDs",
+        ));
+    }
+
+    // Check retrieval_mode
+    let retrieval_mode = data.extra.get("retrieval_mode").and_then(|v| v.as_str());
+    match retrieval_mode {
+        None => {
+            errors.push(LintError::warning_with_hint(
+                node_id,
+                node_title,
+                "Knowledge Retrieval missing 'retrieval_mode'",
+                "Add: retrieval_mode: single or multiple",
+            ));
+        }
+        Some(mode) if mode != "single" && mode != "multiple" => {
+            errors.push(LintError::warning(
+                node_id,
+                node_title,
+                &format!("Unknown retrieval_mode: {} (expected single or multiple)", mode),
+            ));
+        }
+        _ => {}
+    }
+
+    // Check for rerank model (can cause issues without OpenAI)
+    if let Some(settings) = data.extra.get("single_retrieval_config") {
+        if let Some(model) = settings.get("reranking_model") {
+            if model.get("provider").and_then(|p| p.as_str()) == Some("openai") {
+                errors.push(LintError::warning_with_hint(
+                    node_id,
+                    node_title,
+                    "Rerank model uses OpenAI - may fail without OpenAI plugin",
+                    "Consider using weighted_score mode instead of rerank",
+                ));
+            }
+        }
+    }
+
+    if let Some(settings) = data.extra.get("multiple_retrieval_config") {
+        if let Some(model) = settings.get("reranking_model") {
+            if model.get("provider").and_then(|p| p.as_str()) == Some("openai") {
+                errors.push(LintError::warning_with_hint(
+                    node_id,
+                    node_title,
+                    "Rerank model uses OpenAI - may fail without OpenAI plugin",
+                    "Consider using weighted_score mode instead of rerank",
+                ));
             }
         }
     }

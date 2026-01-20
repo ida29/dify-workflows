@@ -1,5 +1,6 @@
 use clap::Parser;
 use dify_linter::{print_json, print_report, DifyDsl, DifyLinter};
+use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -34,8 +35,29 @@ fn main() -> ExitCode {
         }
     };
 
+    // Detect and extract YAML content
+    let yaml_content = if content.trim_start().starts_with('{') {
+        // JSON format - try to extract 'data' field which contains YAML
+        match serde_json::from_str::<Value>(&content) {
+            Ok(json) => {
+                if let Some(data) = json.get("data").and_then(|d| d.as_str()) {
+                    data.to_string()
+                } else {
+                    eprintln!("Error: JSON file does not contain 'data' field with YAML");
+                    return ExitCode::FAILURE;
+                }
+            }
+            Err(e) => {
+                eprintln!("Error parsing JSON wrapper: {}", e);
+                return ExitCode::FAILURE;
+            }
+        }
+    } else {
+        content
+    };
+
     // Parse YAML
-    let dsl: DifyDsl = match serde_yaml::from_str(&content) {
+    let dsl: DifyDsl = match serde_yaml::from_str(&yaml_content) {
         Ok(d) => d,
         Err(e) => {
             eprintln!("Error parsing YAML: {}", e);
