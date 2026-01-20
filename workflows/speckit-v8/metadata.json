@@ -1,0 +1,12 @@
+{
+  "app_id": "ea675117-aa5c-4369-83c8-949ded7211ee",
+  "name": "SpecKit v8",
+  "mode": "advanced-chat",
+  "description": "自動Web検索統合版 - planコマンドで不明な技術を自動検索",
+  "public_url": "http://yida-dify.duckdns.org/chat/Otaute39W6qFaEkX",
+  "features": [
+    "auto-web-search",
+    "clarify-recommended-options",
+    "github-speckit-alignment"
+  ]
+}

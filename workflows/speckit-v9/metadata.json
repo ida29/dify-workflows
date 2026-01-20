@@ -1,0 +1,13 @@
+{
+  "app_id": "04cafd56-487e-486d-ac73-e401360edb69",
+  "name": "SpecKit v9",
+  "mode": "advanced-chat",
+  "description": "Feature Discovery統合版 - constitutionの後に推奨機能を自動提案",
+  "public_url": "http://yida-dify.duckdns.org/chat/ZTrwem5471fd3y4g",
+  "features": [
+    "feature-discovery",
+    "auto-web-search",
+    "clarify-recommended-options",
+    "priority-based-suggestions"
+  ]
+}

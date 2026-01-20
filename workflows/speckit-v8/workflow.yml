@@ -1,0 +1,2263 @@
+app:
+  description: SpecKit v8 - 自動Web検索統合版
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: SpecKit v8
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/bedrock:0.0.57@b7fb0414c4e64004a36c3141cb8d9a249d949013bb21efbce34918e71cce5051
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tavily:0.0.6@25e3e2ebead51a20ece96e9dc4fbce2e00d22b5b9001d0f01862d5a879fd62ed
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables:
+  - description: プロジェクト原則（バージョン管理）
+    id: a1b2c3d4-0001-4000-8000-000000000001
+    name: constitution
+    selector:
+    - conversation
+    - constitution
+    value: ''
+    value_type: string
+  - description: 要件仕様書（spec.md形式）
+    id: a1b2c3d4-0002-4000-8000-000000000002
+    name: specification
+    selector:
+    - conversation
+    - specification
+    value: ''
+    value_type: string
+  - description: 明確化セッション状態（質問カウント、回答履歴）
+    id: a1b2c3d4-0003-4000-8000-000000000003
+    name: clarify_state
+    selector:
+    - conversation
+    - clarify_state
+    value: '{"question_count": 0, "answers": []}'
+    value_type: string
+  - description: 技術実装計画（plan.md形式）
+    id: a1b2c3d4-0004-4000-8000-000000000004
+    name: implementation_plan
+    selector:
+    - conversation
+    - implementation_plan
+    value: ''
+    value_type: string
+  - description: タスクリスト（tasks.md形式）
+    id: a1b2c3d4-0005-4000-8000-000000000005
+    name: task_list
+    selector:
+    - conversation
+    - task_list
+    value: ''
+    value_type: string
+  - description: 分析レポート（analyze結果）
+    id: a1b2c3d4-0006-4000-8000-000000000006
+    name: analysis_report
+    selector:
+    - conversation
+    - analysis_report
+    value: ''
+    value_type: string
+  - description: 品質チェックリスト（checklist形式）
+    id: a1b2c3d4-0007-4000-8000-000000000007
+    name: checklist
+    selector:
+    - conversation
+    - checklist
+    value: ''
+    value_type: string
+  - description: Constitution質問セッション状態
+    id: a1b2c3d4-0009-4000-8000-000000000009
+    name: constitution_state
+    selector: &id001
+    - conversation
+    - constitution_state
+    value: '{"awaiting_answer": false, "question_asked": ""}'
+    value_type: string
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: '# SpecKit v8 へようこそ! (自動Web検索統合版)
+
+
+      利用可能なコマンド:
+
+      - **constitution**: プロジェクト原則定義
+
+      - **specify**: 要件仕様書作成
+
+      - **clarify**: 曖昧要件の明確化（推奨オプション付き）
+
+      - **plan**: 技術実装計画（不明な技術は自動でWeb検索）
+
+      - **tasks**: タスク分解
+
+      - **analyze**: Read-only分析
+
+      - **checklist**: 要件品質チェック
+
+      - **export**: 成果物エクスポート
+
+
+      💡 planコマンドで不明な技術用語があれば自動でWeb検索して最新情報を取得します。
+
+      '
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions:
+    - constitution ECサイトを作りたい
+    - specify ユーザー認証システム
+    - plan React Server Componentsで実装したい
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: start
+        targetType: if-else
+      id: 1736500000001-1736500000005
+      source: '1736500000001'
+      sourceHandle: source
+      target: '1736500000005'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000005-true-1736500000040
+      source: '1736500000005'
+      sourceHandle: 'true'
+      target: '1736500000040'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: code
+      id: 1736500000005-false-1736500000010
+      source: '1736500000005'
+      sourceHandle: 'false'
+      target: '1736500000010'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: code
+        targetType: if-else
+      id: 1736500000010-1736500000011
+      source: '1736500000010'
+      sourceHandle: source
+      target: '1736500000011'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-constitution-1736500000020
+      source: '1736500000011'
+      sourceHandle: constitution
+      target: '1736500000020'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-specify-1736500000030
+      source: '1736500000011'
+      sourceHandle: specify
+      target: '1736500000030'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-clarify-1736500000040
+      source: '1736500000011'
+      sourceHandle: clarify
+      target: '1736500000040'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-plan-1736500000050
+      source: '1736500000011'
+      sourceHandle: plan
+      target: '1736500000050'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-tasks-1736500000060
+      source: '1736500000011'
+      sourceHandle: tasks
+      target: '1736500000060'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-analyze-1736500000070
+      source: '1736500000011'
+      sourceHandle: analyze
+      target: '1736500000070'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-checklist-1736500000075
+      source: '1736500000011'
+      sourceHandle: checklist
+      target: '1736500000075'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-export-1736500000090
+      source: '1736500000011'
+      sourceHandle: export
+      target: '1736500000090'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-false-1736500000100
+      source: '1736500000011'
+      sourceHandle: 'false'
+      target: '1736500000100'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: 1736500000030-1736500000031
+      source: '1736500000030'
+      sourceHandle: source
+      target: '1736500000031'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: 1736500000031-1736500000200
+      source: '1736500000031'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000030'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: code
+      id: 1736500000040-1736500000042
+      source: '1736500000040'
+      sourceHandle: source
+      target: '1736500000042'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: code
+        targetType: assigner
+      id: 1736500000042-1736500000041
+      source: '1736500000042'
+      sourceHandle: source
+      target: '1736500000041'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: 1736500000041-1736500000200
+      source: '1736500000041'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000040'
+      type: custom
+    # Plan Handler → Extract Search Query
+    - data:
+        sourceType: llm
+        targetType: code
+      id: 1736500000050-1736500000052
+      source: '1736500000050'
+      sourceHandle: source
+      target: '1736500000052'
+      targetHandle: target
+      type: custom
+    # Extract Search Query → Search Decision
+    - data:
+        sourceType: code
+        targetType: if-else
+      id: 1736500000052-1736500000053
+      source: '1736500000052'
+      sourceHandle: source
+      target: '1736500000053'
+      targetHandle: target
+      type: custom
+    # Search Decision (needs_search=true) → Tavily Search
+    - data:
+        sourceType: if-else
+        targetType: tool
+      id: 1736500000053-true-1736500000054
+      source: '1736500000053'
+      sourceHandle: 'true'
+      target: '1736500000054'
+      targetHandle: target
+      type: custom
+    # Search Decision (needs_search=false) → Plan Aggregator
+    - data:
+        sourceType: if-else
+        targetType: variable-aggregator
+      id: 1736500000053-false-1736500000056
+      source: '1736500000053'
+      sourceHandle: 'false'
+      target: '1736500000056'
+      targetHandle: no-search
+      type: custom
+    # Tavily Search → Integrate Search Results
+    - data:
+        sourceType: tool
+        targetType: llm
+      id: 1736500000054-1736500000055
+      source: '1736500000054'
+      sourceHandle: source
+      target: '1736500000055'
+      targetHandle: target
+      type: custom
+    # Integrate Search Results → Plan Aggregator
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 1736500000055-1736500000056
+      source: '1736500000055'
+      sourceHandle: source
+      target: '1736500000056'
+      targetHandle: with-search
+      type: custom
+    # Plan Aggregator → Save Plan
+    - data:
+        sourceType: variable-aggregator
+        targetType: assigner
+      id: 1736500000056-1736500000051
+      source: '1736500000056'
+      sourceHandle: source
+      target: '1736500000051'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: 1736500000051-1736500000200
+      source: '1736500000051'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000050'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: 1736500000060-1736500000061
+      source: '1736500000060'
+      sourceHandle: source
+      target: '1736500000061'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: 1736500000061-1736500000200
+      source: '1736500000061'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000060'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: 1736500000070-1736500000071
+      source: '1736500000070'
+      sourceHandle: source
+      target: '1736500000071'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: 1736500000071-1736500000200
+      source: '1736500000071'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000070'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: 1736500000075-1736500000076
+      source: '1736500000075'
+      sourceHandle: source
+      target: '1736500000076'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: 1736500000076-1736500000200
+      source: '1736500000076'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000075'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 1736500000090-1736500000200
+      source: '1736500000090'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000090'
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 1736500000100-1736500000200
+      source: '1736500000100'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: '1736500000100'
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-status-1736500000100
+      source: '1736500000011'
+      sourceHandle: status
+      target: '1736500000100'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: if-else
+        targetType: llm
+      id: 1736500000011-help-1736500000100
+      source: '1736500000011'
+      sourceHandle: help
+      target: '1736500000100'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: code
+        targetType: assigner
+      id: 1736500000022-1736500000023
+      source: '1736500000022'
+      sourceHandle: source
+      target: '1736500000023'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: assigner
+        targetType: variable-aggregator
+      id: 1736500000023-1736500000200
+      source: '1736500000023'
+      sourceHandle: source
+      target: '1736500000200'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: llm
+        targetType: assigner
+      id: 1736500000020-1736500000021
+      source: '1736500000020'
+      sourceHandle: source
+      target: '1736500000021'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: assigner
+        targetType: code
+      id: 1736500000021-1736500000022
+      source: '1736500000021'
+      sourceHandle: source
+      target: '1736500000022'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: variable-aggregator
+        targetType: code
+      id: 1736500000200-1736500000250
+      source: '1736500000200'
+      sourceHandle: source
+      target: '1736500000250'
+      targetHandle: target
+      type: custom
+    - data:
+        sourceType: code
+        targetType: answer
+      id: 1736500000250-1736500000300
+      source: '1736500000250'
+      sourceHandle: source
+      target: '1736500000300'
+      targetHandle: target
+      type: custom
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables: []
+      height: 73
+      id: '1736500000001'
+      position:
+        x: 80
+        y: 400
+      positionAbsolute:
+        x: 80
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            value: '"completed": false'
+            value_type: constant
+            variable_selector:
+            - conversation
+            - clarify_state
+          - comparison_operator: not contains
+            value: constitution
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: not contains
+            value: specify
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: not contains
+            value: plan
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: not contains
+            value: tasks
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: not contains
+            value: export
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: not contains
+            value: analyze
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          - comparison_operator: not contains
+            value: checklist
+            value_type: constant
+            variable_selector:
+            - sys
+            - query
+          logical_operator: and
+        desc: clarify中かつユーザー入力がコマンドでない場合、Clarify Handlerへ
+        selected: false
+        title: Clarify State Checker
+        type: if-else
+      height: 376
+      id: '1736500000005'
+      position:
+        x: 200
+        y: 400
+      positionAbsolute:
+        x: 200
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |
+          import unicodedata
+          import json
+
+          def main(query: str, clarify_state: str, constitution_state: str) -> dict:
+              q = ''.join(c for c in query if unicodedata.category(c) != 'Cf')
+              q = q.strip()
+              q_lower = q.lower()
+
+              if not q or q.isspace():
+                  return {"command": "help", "error": "empty_input"}
+
+              first_word = q_lower.split()[0] if q_lower.split() else ""
+
+              valid_commands = ["constitution", "specify", "clarify", "plan", "tasks",
+                                "analyze", "checklist", "export", "help", "status"]
+
+              try:
+                  const_state = json.loads(constitution_state) if constitution_state else {}
+                  awaiting_constitution = const_state.get("awaiting_answer", False)
+              except:
+                  awaiting_constitution = False
+
+              if awaiting_constitution and first_word not in valid_commands:
+                  return {"command": "constitution", "error": ""}
+
+              if first_word in valid_commands:
+                  return {"command": first_word, "error": ""}
+
+              try:
+                  state = json.loads(clarify_state) if clarify_state else {}
+                  in_clarify = state.get("question_count", 0) > 0 and not state.get("completed", False)
+              except:
+                  in_clarify = False
+
+              if in_clarify:
+                  if q_lower in ["a", "b", "c", "d", "e", "yes", "recommended", "suggested", "はい", "推奨"]:
+                      return {"command": "clarify", "error": ""}
+                  if len(q) <= 50:
+                      return {"command": "clarify", "error": ""}
+
+              return {"command": "help", "error": f"unknown_command:{first_word}"}
+        code_language: python3
+        desc: 入力の最初の単語でコマンドを判定
+        outputs:
+          command:
+            children: null
+            type: string
+          error:
+            children: null
+            type: string
+        selected: false
+        title: Command Extractor
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          variable: query
+        - value_selector:
+          - conversation
+          - clarify_state
+          variable: clarify_state
+        - value_selector:
+          - conversation
+          - constitution_state
+          variable: constitution_state
+      height: 80
+      id: '1736500000010'
+      position:
+        x: 380
+        y: 350
+      positionAbsolute:
+        x: 380
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: constitution
+          conditions:
+          - comparison_operator: is
+            value: constitution
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: specify
+          conditions:
+          - comparison_operator: is
+            value: specify
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: clarify
+          conditions:
+          - comparison_operator: is
+            value: clarify
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: plan
+          conditions:
+          - comparison_operator: is
+            value: plan
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: tasks
+          conditions:
+          - comparison_operator: is
+            value: tasks
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: analyze
+          conditions:
+          - comparison_operator: is
+            value: analyze
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: checklist
+          conditions:
+          - comparison_operator: is
+            value: checklist
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: export
+          conditions:
+          - comparison_operator: is
+            value: export
+            value_type: constant
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: help
+          conditions:
+          - comparison_operator: is
+            value: help
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        - case_id: status
+          conditions:
+          - comparison_operator: is
+            value: status
+            variable_selector:
+            - '1736500000010'
+            - command
+          logical_operator: and
+        desc: コマンドに応じてハンドラーにルーティング
+        selected: false
+        title: Command Router
+        type: if-else
+      height: 552
+      id: '1736500000011'
+      position:
+        x: 480
+        y: 350
+      positionAbsolute:
+        x: 480
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - constitution
+        desc: プロジェクト原則定義
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.3
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          role: system
+          text: |
+            あなたはプロジェクト原則を定義するアシスタントです。
+
+            【内部データ - 絶対に出力しないこと】
+            既存のConstitution: {{#conversation.constitution#}}
+            Constitution状態: {{#conversation.constitution_state#}}
+
+            【内部ルール - 絶対に出力しないこと】
+            1. 初回（awaiting_answer=false）:
+               - プロジェクト名を確認
+               - 3つの質問を提示
+               - 末尾に [CONST_STATE:awaiting] を付ける
+
+            2. 回答受信時（awaiting_answer=true）:
+               - ユーザーの回答を解析してConstitutionを生成
+               - 次のステップへのナビゲーションを表示
+               - 末尾に [CONST_STATE:done] を付ける
+
+            【Tech Stack分類】
+            - インフラ: SST, Terraform, AWS CDK, Pulumi, Vercel, Netlify
+            - フロントエンド: React, Vue, Next.js, Svelte, GoogleAIStudio
+            - バックエンド: Node.js, Python, Go, Motia, Express, FastAPI
+            - データベース: PostgreSQL, MySQL, MongoDB, Redis, DynamoDB
+
+            【出力フォーマット】
+
+            ■ 初回:
+            かしこまりました！「[プロジェクト名]」ですね！
+
+            1. 想定規模は？（月間PV、ユーザー数など）
+            2. 技術スタックの希望は？
+            3. 重視する品質は？（パフォーマンス、セキュリティ、UXなど）
+
+            [CONST_STATE:awaiting]
+
+            ■ 回答受信後:
+            # Project Constitution: [プロジェクト名]
+
+            ## Vision
+            [目的]
+
+            ## Scale
+            - 月間PV: [回答から]
+
+            ## Tech Stack
+            - Infrastructure: [インフラ系]
+            - Frontend: [フロント系]
+            - Backend: [バックエンド系]
+            - Database: [DB系]
+
+            ## Quality Priorities
+            1. [最重視]
+            2. [次点]
+
+            ---
+
+            ## 次のステップ
+            **今すぐ入力してください:**
+            ```
+            specify [機能名]
+            ```
+
+            [CONST_STATE:done]
+        - id: 550e8400-e29b-41d4-a716-446655440001
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Constitution Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000020'
+      position:
+        x: 680
+        y: 50
+      positionAbsolute:
+        x: 680
+        y: 50
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+        desc: 要件仕様書作成
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            あなたは要件仕様書を作成するアシスタントです。
+
+            【内部データ】
+            Constitution: {{#conversation.constitution#}}
+            既存仕様書: {{#conversation.specification#}}
+
+            【ルール】
+            - 機能名がない → 質問
+            - 機能名がある → 仕様書生成 + clarify質問開始
+
+            【出力フォーマット】
+
+            # Feature Specification: [機能名]
+
+            ## User Stories
+            ### Story 1 - [名前] (P1)
+            **Given** [前提] **When** [アクション] **Then** [結果]
+
+            ## Requirements
+            - FR-001: [機能要件]
+
+            ---
+
+            ## 仕様の明確化
+            【Functional Scope】(質問 1/5)
+            Q: [質問]
+
+            **推奨:** A) [推奨] - [理由]
+
+            | Option | Description |
+            |--------|-------------|
+            | A | [選択肢1] |
+            | B | [選択肢2] |
+
+            [STATE:1]
+        - id: 6ba7b811-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Specify Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000030'
+      position:
+        x: 680
+        y: 150
+      positionAbsolute:
+        x: 680
+        y: 150
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+        desc: 曖昧要件の明確化
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b812-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            あなたはspec-kit clarifyの専門家です。
+
+            【内部データ】
+            clarify_state: {{#conversation.clarify_state#}}
+            仕様書: {{#conversation.specification#}}
+
+            【ルール】
+            - 1問ずつ順番に提示
+            - 推奨オプションを明示
+            - 「yes」「recommended」で推奨採用
+            - 最大5問
+
+            【出力】
+            ■ 質問:
+            【{カテゴリ}】(質問 {N}/5)
+            Q: {質問}
+
+            **推奨:** {記号}) {選択肢} - {理由}
+
+            | Option | Description |
+            |--------|-------------|
+            | A | {選択肢A} |
+            | B | {選択肢B} |
+
+            [STATE:{N}]
+
+            ■ 完了時:
+            clarifyセッション完了！
+
+            ## 次のステップ
+            ```
+            plan
+            ```
+
+            [STATE:5:DONE]
+        - id: 6ba7b813-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Clarify Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000040'
+      position:
+        x: 680
+        y: 250
+      positionAbsolute:
+        x: 680
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - implementation_plan
+        desc: 実装計画作成（検索判定付き）
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b814-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            あなたは技術実装計画を作成するアシスタントです。
+            不明な技術やベストプラクティスがあれば、Web検索が必要かどうかを判断してください。
+
+            【内部データ】
+            Constitution: {{#conversation.constitution#}}
+            仕様書: {{#conversation.specification#}}
+
+            【重要なルール】
+            出力の最後に必ず以下のJSON形式で検索が必要かを示してください：
+
+            ```json
+            {"needs_search": true, "search_query": "検索クエリ", "reason": "理由"}
+            ```
+
+            または
+
+            ```json
+            {"needs_search": false, "search_query": "", "reason": ""}
+            ```
+
+            【検索が必要な場合の例】
+            - 最新のフレームワークのベストプラクティス（React Server Components, Motia, SST v3など）
+            - 2024年以降の新しい技術トレンド
+            - 特定のライブラリの最新の使い方
+            - 知らない技術スタックが指定された場合
+
+            【検索が不要な場合の例】
+            - 一般的で確立された技術（React, Node.js, PostgreSQLなど）
+            - 基本的なCRUD操作
+            - 標準的なアーキテクチャパターン
+
+            【出力フォーマット】
+
+            # Implementation Plan: [プロジェクト名]
+
+            ## Summary
+            [概要]
+
+            ## Technical Context
+            - Infrastructure: [インフラ]
+            - Frontend: [フロント]
+            - Backend: [バックエンド]
+            - Database: [DB]
+
+            ## Implementation Phases
+            ### Phase 1: [フェーズ名]
+            1. [項目]
+
+            ---
+
+            ```json
+            {"needs_search": true/false, "search_query": "クエリ", "reason": "理由"}
+            ```
+        - id: 6ba7b815-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Plan Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000050'
+      position:
+        x: 680
+        y: 350
+      positionAbsolute:
+        x: 680
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # Extract Search Query from Plan Handler output
+    - data:
+        code: |
+          import re
+          import json
+
+          def main(plan_output: str) -> dict:
+              # JSONブロックを抽出
+              json_match = re.search(r'```json\s*(\{.*?\})\s*```', plan_output, re.DOTALL)
+
+              if json_match:
+                  try:
+                      data = json.loads(json_match.group(1))
+                      needs_search = data.get("needs_search", False)
+                      search_query = data.get("search_query", "")
+                      reason = data.get("reason", "")
+
+                      # JSONブロックを除去した計画本文
+                      plan_text = re.sub(r'```json\s*\{.*?\}\s*```', '', plan_output, flags=re.DOTALL).strip()
+
+                      return {
+                          "needs_search": "true" if needs_search else "false",
+                          "search_query": search_query,
+                          "reason": reason,
+                          "plan_text": plan_text
+                      }
+                  except json.JSONDecodeError:
+                      pass
+
+              return {
+                  "needs_search": "false",
+                  "search_query": "",
+                  "reason": "",
+                  "plan_text": plan_output
+              }
+        code_language: python3
+        desc: Plan出力からJSON検索指示を抽出
+        outputs:
+          needs_search:
+            children: null
+            type: string
+          search_query:
+            children: null
+            type: string
+          reason:
+            children: null
+            type: string
+          plan_text:
+            children: null
+            type: string
+        selected: false
+        title: Extract Search Query
+        type: code
+        variables:
+        - value_selector:
+          - '1736500000050'
+          - text
+          variable: plan_output
+      height: 96
+      id: '1736500000052'
+      position:
+        x: 930
+        y: 350
+      positionAbsolute:
+        x: 930
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # Search Decision IF/ELSE
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            value: 'true'
+            value_type: constant
+            variable_selector:
+            - '1736500000052'
+            - needs_search
+          logical_operator: and
+        desc: 検索が必要か判定
+        selected: false
+        title: Search Decision
+        type: if-else
+      height: 150
+      id: '1736500000053'
+      position:
+        x: 1180
+        y: 350
+      positionAbsolute:
+        x: 1180
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # Tavily Search Tool
+    - data:
+        desc: 不明な技術をWeb検索
+        provider_id: langgenius/tavily/tavily
+        provider_name: tavily
+        provider_type: builtin
+        selected: false
+        title: Tavily Search
+        tool_configurations:
+          include_domains: ''
+          include_images: 0
+          search_depth: basic
+          topic: general
+        tool_label: TavilySearch
+        tool_name: tavily_search
+        tool_parameters:
+          max_results:
+            type: constant
+            value: 5
+          query:
+            type: variable
+            value:
+            - '1736500000052'
+            - search_query
+        type: tool
+      height: 160
+      id: '1736500000054'
+      position:
+        x: 1430
+        y: 280
+      positionAbsolute:
+        x: 1430
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # Integrate Search Results
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 検索結果を実装計画に統合
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b850-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            以下の実装計画にWeb検索で得た最新情報を統合してください。
+
+            【元の実装計画】
+            {{#1736500000052.plan_text#}}
+
+            【検索理由】
+            {{#1736500000052.reason#}}
+
+            【検索結果】
+            {{#1736500000054.text#}}
+
+            【出力ルール】
+            1. 元の計画の構造を維持
+            2. 検索結果から得た重要な情報を「## Research Results」セクションとして追加
+            3. 関連するフェーズに具体的な実装アドバイスを追記
+            4. 最後に「## 次のステップ」を追加
+
+            【出力フォーマット】
+
+            # Implementation Plan: [プロジェクト名]
+
+            [元の計画内容]
+
+            ## Research Results
+            🔍 **検索クエリ**: {{#1736500000052.search_query#}}
+
+            ### 発見した重要情報
+            - [検索結果から得た重要ポイント1]
+            - [検索結果から得た重要ポイント2]
+            - [検索結果から得た重要ポイント3]
+
+            ### 推奨される実装アプローチ
+            [検索結果に基づく具体的なアドバイス]
+
+            ---
+
+            ## 次のステップ
+            タスク分解を行いましょう。
+
+            **今すぐ入力してください:**
+            ```
+            tasks
+            ```
+        - id: 6ba7b851-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '検索結果を統合してください'
+        selected: false
+        structured_output_enabled: false
+        title: Integrate Search Results
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000055'
+      position:
+        x: 1680
+        y: 280
+      positionAbsolute:
+        x: 1680
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    # Plan Aggregator (merge search and no-search paths)
+    - data:
+        advanced_settings:
+          group_enabled: false
+          groups: []
+        desc: 検索あり/なしパスを統合
+        output_type: string
+        selected: false
+        title: Plan Aggregator
+        type: variable-aggregator
+        variables:
+        - - '1736500000055'
+          - text
+        - - '1736500000052'
+          - plan_text
+      height: 150
+      id: '1736500000056'
+      position:
+        x: 1930
+        y: 350
+      positionAbsolute:
+        x: 1930
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - task_list
+        desc: タスク分解
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.6
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b816-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            あなたはタスク分解の専門家です。
+
+            【内部データ】
+            Constitution: {{#conversation.constitution#}}
+            仕様書: {{#conversation.specification#}}
+            実装計画: {{#conversation.implementation_plan#}}
+
+            【出力フォーマット】
+
+            # Task Breakdown: [プロジェクト名]
+
+            ## Phase 1: Setup
+            - [ ] T001 Create project structure
+            - [ ] T002 [P] Configure linting
+
+            ## Phase 2: User Story 1 (P1)
+            - [ ] T003 [US1] Create model
+            - [ ] T004 [P] [US1] Implement service
+
+            ---
+
+            ## 次のステップ
+            ```
+            export
+            ```
+        - id: 6ba7b817-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Tasks Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000060'
+      position:
+        x: 680
+        y: 450
+      positionAbsolute:
+        x: 680
+        y: 450
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+        desc: Read-only分析
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b818-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            あなたはspec-kit analyzeの専門家です。
+
+            【分析対象】
+            仕様書: {{#conversation.specification#}}
+            実装計画: {{#conversation.implementation_plan#}}
+            タスク: {{#conversation.task_list#}}
+            Constitution: {{#conversation.constitution#}}
+
+            【出力】
+
+            # Analysis Report
+
+            ## Findings
+            | ID | Category | Severity | Summary |
+            |----|----------|----------|---------|
+            | D001 | [カテゴリ] | [重大度] | [概要] |
+
+            ## Coverage Matrix
+            | Requirement | Has Task? | Task IDs |
+            |-------------|-----------|----------|
+            | FR-001 | ✓ | T001 |
+
+            ## Metrics
+            - Coverage: X%
+            - Critical Issues: X
+        - id: 6ba7b819-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Analyze Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000070'
+      position:
+        x: 680
+        y: 550
+      positionAbsolute:
+        x: 680
+        y: 550
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - specification
+        desc: 要件品質チェック
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b820-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            あなたはspec-kit checklistジェネレーターです。
+            要件品質チェック（実装テストではない）を作成します。
+
+            【仕様書】
+            {{#conversation.specification#}}
+
+            【出力】
+
+            # Requirements Quality Checklist
+
+            ## Completeness
+            - [ ] CHK001 Are all scenarios documented? [Spec §Stories]
+
+            ## Clarity
+            - [ ] CHK002 Is "fast" quantified? [Clarity]
+
+            ## Consistency
+            - [ ] CHK003 Are terms consistent? [Terminology]
+        - id: 6ba7b821-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Checklist Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 132
+      id: '1736500000075'
+      position:
+        x: 680
+        y: 650
+      positionAbsolute:
+        x: 680
+        y: 650
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - constitution
+        desc: 成果物エクスポート
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+        model:
+          completion_params:
+            temperature: 0.3
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b81c-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            # SpecKit Export - Claude Code用
+
+            ## Constitution
+            {{#conversation.constitution#}}
+
+            ---
+
+            ## Specification
+            {{#conversation.specification#}}
+
+            ---
+
+            ## Implementation Plan
+            {{#conversation.implementation_plan#}}
+
+            ---
+
+            ## Tasks
+            {{#conversation.task_list#}}
+
+            ---
+
+            ## Claude Codeへの指示
+            上記の仕様に基づいて実装を開始してください。
+        - id: 6ba7b81d-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Export Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000090'
+      position:
+        x: 680
+        y: 770
+      positionAbsolute:
+        x: 680
+        y: 770
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ヘルプ
+        memory:
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+            top_p: 1
+          mode: chat
+          name: amazon nova
+          provider: langgenius/bedrock/bedrock
+        prompt_template:
+        - id: 6ba7b81e-9dad-11d1-80b4-00c04fd430c8
+          role: system
+          text: |
+            あなたはSpecKit v8のヘルプ担当です。
+
+            【内部データ】
+            Constitution: {{#conversation.constitution#}}
+            Specification: {{#conversation.specification#}}
+            Plan: {{#conversation.implementation_plan#}}
+            Tasks: {{#conversation.task_list#}}
+            Error: {{#1736500000010.error#}}
+
+            【出力】
+
+            ## 現在の進捗
+            - Constitution: ○/×
+            - Specification: ○/×
+            - Plan: ○/×
+            - Tasks: ○/×
+
+            ## コマンド
+            | Command | Description |
+            |---------|-------------|
+            | constitution | プロジェクト原則 |
+            | specify | 仕様書作成 |
+            | clarify | 曖昧点明確化 |
+            | plan | 実装計画（自動Web検索付き） |
+            | tasks | タスク分解 |
+            | analyze | 分析 |
+            | checklist | 品質チェック |
+            | export | エクスポート |
+
+            ## 次のステップ
+            ```
+            [推奨コマンド]
+            ```
+        - id: 6ba7b81f-9dad-11d1-80b4-00c04fd430c8
+          role: user
+          text: '{{#sys.query#}}'
+        selected: false
+        structured_output_enabled: false
+        title: Help Handler
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 116
+      id: '1736500000100'
+      position:
+        x: 680
+        y: 870
+      positionAbsolute:
+        x: 680
+        y: 870
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Constitutionを保存
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000020'
+          - text
+          variable_selector:
+          - conversation
+          - constitution
+        selected: false
+        title: Save Constitution
+        type: assigner
+        version: '2'
+      height: 112
+      id: '1736500000021'
+      position:
+        x: 930
+        y: 50
+      positionAbsolute:
+        x: 930
+        y: 50
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Specificationを保存
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000030'
+          - text
+          variable_selector:
+          - conversation
+          - specification
+        selected: false
+        title: Save Specification
+        type: assigner
+        version: '2'
+      height: 112
+      id: '1736500000031'
+      position:
+        x: 930
+        y: 150
+      positionAbsolute:
+        x: 930
+        y: 150
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |
+          import re
+          import json
+
+          def main(llm_output: str, current_state: str, user_query: str) -> dict:
+              if re.search(r'\[STATE:', user_query):
+                  return {"state_json": current_state, "attack_detected": "true"}
+
+              match = re.search(r'\[STATE:(\d+)(?::DONE)?\]', llm_output)
+
+              if match:
+                  count = int(match.group(1))
+                  done = ':DONE' in llm_output
+
+                  try:
+                      state = json.loads(current_state)
+                      answers = state.get('answers', [])
+                      prev_count = state.get('question_count', 0)
+                      if count > prev_count + 1:
+                          count = prev_count + 1
+                  except:
+                      answers = []
+
+                  new_state = {
+                      "question_count": count,
+                      "answers": answers,
+                      "completed": done
+                  }
+                  return {"state_json": json.dumps(new_state, ensure_ascii=False), "attack_detected": "false"}
+
+              if '質問 1/5' in llm_output or '(質問 1/5)' in llm_output:
+                  return {"state_json": '{"question_count": 1, "answers": [], "completed": false}', "attack_detected": "false"}
+
+              return {"state_json": current_state, "attack_detected": "false"}
+        code_language: python3
+        desc: Clarify状態抽出
+        outputs:
+          state_json:
+            children: null
+            type: string
+          attack_detected:
+            children: null
+            type: string
+        selected: false
+        title: Extract Clarify State
+        type: code
+        variables:
+        - value_selector:
+          - '1736500000040'
+          - text
+          variable: llm_output
+        - value_selector:
+          - conversation
+          - clarify_state
+          variable: current_state
+        - value_selector:
+          - sys
+          - query
+          variable: user_query
+      height: 96
+      id: '1736500000042'
+      position:
+        x: 880
+        y: 250
+      positionAbsolute:
+        x: 880
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Clarify状態保存
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000042'
+          - state_json
+          variable_selector:
+          - conversation
+          - clarify_state
+        selected: false
+        title: Save Clarify State
+        type: assigner
+        version: '2'
+      height: 112
+      id: '1736500000041'
+      position:
+        x: 1030
+        y: 250
+      positionAbsolute:
+        x: 1030
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Planを保存
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000056'
+          - output
+          variable_selector:
+          - conversation
+          - implementation_plan
+        selected: false
+        title: Save Plan
+        type: assigner
+        version: '2'
+      height: 112
+      id: '1736500000051'
+      position:
+        x: 2180
+        y: 350
+      positionAbsolute:
+        x: 2180
+        y: 350
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Tasksを保存
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000060'
+          - text
+          variable_selector:
+          - conversation
+          - task_list
+        selected: false
+        title: Save Tasks
+        type: assigner
+        version: '2'
+      height: 112
+      id: '1736500000061'
+      position:
+        x: 930
+        y: 450
+      positionAbsolute:
+        x: 930
+        y: 450
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Analysisを保存
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000070'
+          - text
+          variable_selector:
+          - conversation
+          - analysis_report
+        selected: false
+        title: Save Analysis
+        type: assigner
+        version: '2'
+      height: 112
+      id: '1736500000071'
+      position:
+        x: 930
+        y: 550
+      positionAbsolute:
+        x: 930
+        y: 550
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Checklistを保存
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000075'
+          - text
+          variable_selector:
+          - conversation
+          - checklist
+        selected: false
+        title: Save Checklist
+        type: assigner
+        version: '2'
+      height: 112
+      id: '1736500000076'
+      position:
+        x: 930
+        y: 650
+      positionAbsolute:
+        x: 930
+        y: 650
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        advanced_settings:
+          group_enabled: false
+          groups: []
+        desc: 全結果を統合
+        output_type: string
+        selected: false
+        title: Result Aggregator
+        type: variable-aggregator
+        variables:
+        - - '1736500000020'
+          - text
+        - - '1736500000030'
+          - text
+        - - '1736500000040'
+          - text
+        - - '1736500000056'
+          - output
+        - - '1736500000060'
+          - text
+        - - '1736500000070'
+          - text
+        - - '1736500000075'
+          - text
+        - - '1736500000090'
+          - text
+        - - '1736500000100'
+          - text
+      height: 420
+      id: '1736500000200'
+      position:
+        x: 2430
+        y: 380
+      positionAbsolute:
+        x: 2430
+        y: 380
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1736500000250.cleaned_text#}}'
+        desc: ''
+        selected: false
+        title: Answer
+        type: answer
+        variables:
+        - value_selector:
+          - '1736500000200'
+          - output
+          variable: output
+      height: 103
+      id: '1736500000300'
+      position:
+        x: 2730
+        y: 430
+      positionAbsolute:
+        x: 2730
+        y: 430
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |
+          import re
+
+          def main(llm_output: str, current_state: str) -> dict:
+              if '[CONST_STATE:awaiting]' in llm_output:
+                  return {"state_json": '{"awaiting_answer": true, "question_asked": "initial"}'}
+              elif '[CONST_STATE:done]' in llm_output:
+                  return {"state_json": '{"awaiting_answer": false, "question_asked": ""}'}
+              return {"state_json": current_state if current_state else '{"awaiting_answer": false, "question_asked": ""}'}
+        code_language: python3
+        desc: Constitution状態抽出
+        outputs:
+          state_json:
+            children: null
+            type: string
+        selected: false
+        title: Extract Constitution State
+        type: code
+        variables:
+        - value_selector:
+          - '1736500000020'
+          - text
+          variable: llm_output
+        - value_selector:
+          - conversation
+          - constitution_state
+          variable: current_state
+      height: 116
+      id: '1736500000022'
+      position:
+        x: 680
+        y: 100
+      positionAbsolute:
+        x: 680
+        y: 100
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: Constitution状態保存
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1736500000022'
+          - state_json
+          variable_selector: *id001
+        selected: false
+        title: Save Constitution State
+        type: assigner
+        version: '2'
+      height: 116
+      id: '1736500000023'
+      position:
+        x: 980
+        y: 100
+      positionAbsolute:
+        x: 980
+        y: 100
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: |
+          import re
+
+          def main(text: str) -> dict:
+              if not text:
+                  return {"cleaned_text": ""}
+              text = re.sub(r'\[CONST_STATE:[a-z]+\]', '', text)
+              text = re.sub(r'\[STATE:\d+(?::DONE)?\]', '', text)
+              text = re.sub(r'```json\s*\{[^}]*\}\s*```', '', text)
+              text = re.sub(r'\n{3,}', '\n\n', text)
+              return {"cleaned_text": text.strip()}
+        code_language: python3
+        desc: 内部マーカーを除去
+        outputs:
+          cleaned_text:
+            children: null
+            type: string
+        selected: false
+        title: Strip Internal Markers
+        type: code
+        variables:
+        - value_selector:
+          - '1736500000200'
+          - output
+          variable: text
+      height: 116
+      id: '1736500000250'
+      position:
+        x: 2680
+        y: 300
+      positionAbsolute:
+        x: 2680
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -200
+      y: 100
+      zoom: 0.5
+  rag_pipeline_variables: []
