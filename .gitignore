@@ -33,3 +33,4 @@ secrets/
 .playwright-state.json
 .env.local
 dify-linter/target/
+.claude/cache/

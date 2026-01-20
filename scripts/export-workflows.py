@@ -146,7 +146,7 @@ def sanitize_filename(name: str) -> str:
 
 def export_workflows(dify_url: str, api_key: str, output_dir: str):
     """
-    全ワークフローをエクスポート
+    全ワークフローをエクスポート（削除されたアプリも同期）
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -155,6 +155,9 @@ def export_workflows(dify_url: str, api_key: str, output_dir: str):
     apps = get_apps_list(dify_url, api_key)
 
     print(f"Found {len(apps)} apps")
+
+    # Dify上のアプリのディレクトリ名を収集
+    exported_dirs = set()
 
     for app in apps:
         app_id = app['id']
@@ -165,6 +168,7 @@ def export_workflows(dify_url: str, api_key: str, output_dir: str):
 
         # ディレクトリ名を作成
         dir_name = sanitize_filename(app_name)
+        exported_dirs.add(dir_name)
         app_dir = output_path / dir_name
         app_dir.mkdir(exist_ok=True)
 
@@ -200,7 +204,19 @@ def export_workflows(dify_url: str, api_key: str, output_dir: str):
             print(f"  ✗ Error exporting {app_name}: {e}")
             continue
 
-    print(f"\n✓ Export completed: {len(apps)} apps exported to {output_dir}")
+    # Difyに存在しないローカルディレクトリを削除
+    print("\n--- Checking for deleted apps ---")
+    deleted_count = 0
+    for local_dir in output_path.iterdir():
+        if local_dir.is_dir() and local_dir.name not in exported_dirs:
+            # workflow.ymlがあるディレクトリのみ削除対象
+            if (local_dir / 'workflow.yml').exists():
+                print(f"  ✗ Removing deleted app: {local_dir.name}")
+                import shutil
+                shutil.rmtree(local_dir)
+                deleted_count += 1
+
+    print(f"\n✓ Export completed: {len(apps)} apps exported, {deleted_count} deleted from {output_dir}")
 
 
 def main():
